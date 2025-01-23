@@ -1,3 +1,4 @@
+import 'package:atmosfera/signUp.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -33,7 +34,10 @@ class HomePage extends StatelessWidget {
             //Sign up button
             ElevatedButton(
               onPressed: () {
-                //press logic
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => signUpPage()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue, //button color
