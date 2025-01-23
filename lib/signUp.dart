@@ -4,6 +4,14 @@ class signUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back to the previous screen
+          },
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -23,7 +31,7 @@ class signUpPage extends StatelessWidget {
                   //add sign up logic
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.blue[900],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -47,7 +55,7 @@ Widget buildInputField(String label, String placeholder,
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
     decoration: BoxDecoration(
-      color: Colors.teal,
+      color: Colors.cyanAccent[700],
       borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
@@ -57,15 +65,18 @@ Widget buildInputField(String label, String placeholder,
           label,
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
-        Expanded(
+        SizedBox(width: 10), // Space between label and TextField
+        Flexible(
             child: TextField(
           obscureText: obscureText,
           decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.white)),
+            border: InputBorder.none,
+            hintText: placeholder,
+            hintStyle: TextStyle(color: Colors.white),
+            contentPadding: EdgeInsets.only(bottom: 8),
+          ),
           style: TextStyle(color: Colors.white),
-        ))
+        )),
       ],
     ),
   );

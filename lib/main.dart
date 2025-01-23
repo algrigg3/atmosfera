@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, //button color
+                backgroundColor: Colors.blue[900], //button color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10), //Rounded corners
                 ),
@@ -58,7 +58,7 @@ class HomePage extends StatelessWidget {
                 //add button logic
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, //button color
+                backgroundColor: Colors.blue[900], //button color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10), //Rounded corners
                 ),
