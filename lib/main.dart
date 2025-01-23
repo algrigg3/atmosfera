@@ -1,3 +1,4 @@
+import 'package:atmosfera/login.dart';
 import 'package:atmosfera/signUp.dart';
 import 'package:flutter/material.dart';
 
@@ -48,14 +49,17 @@ class HomePage extends StatelessWidget {
               ),
               child: Text(
                 'Sign up',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                style: TextStyle(fontSize: 14, color: Colors.white),
               ),
             ),
             SizedBox(height: 10), //add space between buttons
             //Login button
             ElevatedButton(
               onPressed: () {
-                //add button logic
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => loginPage()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue[900], //button color
