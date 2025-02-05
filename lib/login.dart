@@ -1,6 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class loginPage extends StatelessWidget {
+class loginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<loginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _loginUser() async {
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      print('Both fields are required');
+      return;
+    }
+
+    final url = Uri.parse('http://127.0.0.1:3000/login'); //Backend API
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        "username": username,
+        "password": password,
+      }),
+    );
+
+    print('Response Status: ${response.statusCode}');
+    print('response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      print('Login Successful!');
+    } else {
+      print("Login failed: ${response.body}");
+    }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,13 +64,14 @@ class loginPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              buildInputField("Username:", "username"),
+              buildInputField("Username:", "username", _usernameController),
               SizedBox(height: 10),
-              buildInputField("Password:", "passsword"),
+              buildInputField("Password:", "password", _passwordController),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  //add sign up logic
+                  print("Login button pressed");
+                  _loginUser(); // Make sure _loginUser is called
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[900],
@@ -46,7 +93,8 @@ class loginPage extends StatelessWidget {
   }
 }
 
-Widget buildInputField(String label, String placeholder,
+Widget buildInputField(
+    String label, String placeholder, TextEditingController usernameController,
     {bool obscureText = false}) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -64,6 +112,7 @@ Widget buildInputField(String label, String placeholder,
         SizedBox(width: 10), // Space between label and TextField
         Flexible(
             child: TextField(
+          controller: usernameController,
           obscureText: obscureText,
           decoration: InputDecoration(
             border: InputBorder.none,
