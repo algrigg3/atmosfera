@@ -31,7 +31,7 @@ class _SignUpPageState extends State<SignUpPage> {
       return; // Stop if any field is empty
     }
 
-    final url = Uri.parse('http://127.0.0.1:3000/signup'); //Backend API
+    final url = Uri.parse('http://127.0.0.1:5000/signup'); //Backend API
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},

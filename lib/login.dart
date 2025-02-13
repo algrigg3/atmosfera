@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class loginPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<loginPage> {
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -20,7 +20,7 @@ class _LoginPageState extends State<loginPage> {
       return;
     }
 
-    final url = Uri.parse('http://127.0.0.1:3000/login'); //Backend API
+    final url = Uri.parse('http://127.0.0.1:5000/login'); //Backend API
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
