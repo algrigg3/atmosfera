@@ -14,24 +14,22 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _phoneController = TextEditingController();
 
   Future<void> _signUpUser() async {
-    final String username = _usernameController.text;
-    final String email = _emailController.text;
-    final String password = _passwordController.text;
-    final String phone_number = _phoneController.text;
+    print("Sign-up button pressed");
+    final String username = _usernameController.text.trim();
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+    final String phone_number = _phoneController.text.trim();
 
     if (username.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
         phone_number.isEmpty) {
       print('All fields are required');
-      print('Username: ${_usernameController.text}');
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      print('Phone Number: ${_phoneController.text}');
       return; // Stop if any field is empty
     }
 
-    final url = Uri.parse('http://127.0.0.1:5000/signup'); //Backend API
+    final url =
+        Uri.parse('http://192.168.1.70:5000/api/auth/signup'); //Backend API
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -42,8 +40,13 @@ class _SignUpPageState extends State<SignUpPage> {
         "phone_number": phone_number,
       }),
     );
-    print('Response Status: ${response.statusCode}');
-    print('response body: ${response.body}');
+
+    if (response.statusCode == 201) {
+      print('Signup successful! ${response.body}');
+      //Navigate to login screen need to add that
+    } else {
+      print('Signup failed: ${response.body}');
+    }
   }
 
   @override

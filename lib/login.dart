@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('http://127.0.0.1:5000/login'); //Backend API
+    final url = Uri.parse('http://127.0.0.1:5000/api/auth/login'); //Backend API
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
