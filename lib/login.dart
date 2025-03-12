@@ -1,3 +1,4 @@
+import 'package:atmosfera/theNow.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -35,6 +36,10 @@ class _LoginPageState extends State<LoginPage> {
 
     if (response.statusCode == 200) {
       print('Login Successful!');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const TheNow()),
+      );
     } else {
       print("Login failed: ${response.body}");
     }
@@ -70,7 +75,10 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
-                  print("Login button pressed");
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => TheNow()),
+                  );
                   _loginUser(); // Make sure _loginUser is called
                 },
                 style: ElevatedButton.styleFrom(
