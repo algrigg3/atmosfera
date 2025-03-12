@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Login Successful!');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const TheNow()),
+        MaterialPageRoute(builder: (context) => TheNow()),
       );
     } else {
       print("Login failed: ${response.body}");
