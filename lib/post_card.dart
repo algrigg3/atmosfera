@@ -1,9 +1,8 @@
 import 'locationScreen.dart';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final String username;
   final String? location; // Optional
   final LatLng? locationCoords;
@@ -11,6 +10,9 @@ class PostCard extends StatelessWidget {
   final String? imageUrl; // Optional
   final String description;
   final String userId;
+
+  final VoidCallback onPin;
+  final VoidCallback onComment;
 
   const PostCard({
     Key? key,
@@ -21,7 +23,22 @@ class PostCard extends StatelessWidget {
     this.imageUrl,
     required this.description,
     required this.userId,
+    required this.onPin, // ✅ Required callback
+    required this.onComment, // ✅ Required callback
   }) : super(key: key);
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool isPinned = false; // ✅ Track local pinned state
+
+  void _togglePin() {
+    setState(() {
+      isPinned = !isPinned;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,29 +58,24 @@ class PostCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  username,
+                  widget.username,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                if (location != null)
+                if (widget.location != null)
                   GestureDetector(
                     onTap: () {
-                      print("Location tapped!"); // ✅ First confirm tap works
-                      print("Username: $username");
-                      print("Location Name: $location");
-                      print("Location Coords: $locationCoords");
-                      print("Address: $address");
-
-                      // ✅ Make sure data is NOT NULL and push to LocationDetailScreen
-                      if (locationCoords != null && address != null) {
+                      print("Location tapped!"); // Debug
+                      if (widget.locationCoords != null &&
+                          widget.address != null) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LocationDetailScreen(
-                              username: username,
-                              locationName: location!,
-                              locationCoords: locationCoords!,
-                              address: address!,
-                              userId: userId,
+                              username: widget.username,
+                              locationName: widget.location!,
+                              locationCoords: widget.locationCoords!,
+                              address: widget.address!,
+                              userId: widget.userId,
                             ),
                           ),
                         );
@@ -73,7 +85,7 @@ class PostCard extends StatelessWidget {
                       }
                     },
                     child: Text(
-                      '@$location',
+                      '@${widget.location}',
                       style: TextStyle(
                         color: Colors.blue,
                         decoration: TextDecoration.underline,
@@ -85,11 +97,11 @@ class PostCard extends StatelessWidget {
             SizedBox(height: 10),
 
             // ✅ Optional Image
-            if (imageUrl != null) ...[
+            if (widget.imageUrl != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.asset(
-                  imageUrl!,
+                  widget.imageUrl!,
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
@@ -98,30 +110,38 @@ class PostCard extends StatelessWidget {
               SizedBox(height: 10),
             ],
 
-            // ✅ Like, Comment, Pin icons row
+            // ✅ Comment & Pin icons row
             Row(
               children: [
-                Icon(Icons.favorite_border),
-                SizedBox(width: 10),
-                Icon(Icons.comment_outlined),
+                IconButton(
+                  icon: Icon(Icons.comment_outlined),
+                  onPressed: widget.onComment, // ✅ Call the passed function
+                ),
                 Spacer(),
-                Icon(Icons.location_pin),
+                IconButton(
+                  icon: Icon(
+                    isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                    color: isPinned ? Colors.blue : null,
+                  ),
+                  onPressed: () {
+                    widget.onPin(); // ✅ Call external function
+                    _togglePin(); // ✅ Update local pin state to reflect in UI
+                  },
+                ),
               ],
             ),
             SizedBox(height: 10),
 
             // ✅ Post description
             Text(
-              description,
+              widget.description,
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 10),
 
             // ✅ View Comments Link
             GestureDetector(
-              onTap: () {
-                // TODO: Navigate to comments page
-              },
+              onTap: widget.onComment, // ✅ Use the same comment function
               child: Text(
                 'View Comments',
                 style: TextStyle(color: Colors.blue),

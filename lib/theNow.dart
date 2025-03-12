@@ -24,6 +24,14 @@ class TheNow extends StatelessWidget {
                   username: "skyWood12",
                   description: "What's everyone up to? It's Friday night!!",
                   userId: userId,
+                  onPin: () {
+                    print("Post pinned by skyWood12!");
+                    // TODO: Call API to pin
+                  },
+                  onComment: () {
+                    print("Comment button clicked for skyWood12!");
+                    // TODO: Navigate to comment screen
+                  },
                 ),
                 PostCard(
                   username: "NatCarroll45",
@@ -36,6 +44,14 @@ class TheNow extends StatelessWidget {
                   description:
                       "The girls and I just got here! Meet us at the bar!!",
                   userId: userId,
+                  onPin: () {
+                    print("Post pinned!");
+                    // TODO: Call your API to pin the post
+                  },
+                  onComment: () {
+                    print("Comment button clicked!");
+                    // TODO: Navigate to Comment Page
+                  },
                 ),
                 // Add more PostCards here
               ],
