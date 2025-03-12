@@ -4,6 +4,9 @@ import 'package:image_picker/image_picker.dart';
 import 'tabBar.dart';
 
 class CreatePost extends StatefulWidget {
+  final String userId;
+
+  const CreatePost({Key? key, required this.userId}) : super(key: key);
   @override
   _CreatePostState createState() => _CreatePostState();
 }
@@ -29,7 +32,7 @@ class _CreatePostState extends State<CreatePost> {
     return Scaffold(
       body: Column(
         children: [
-          CustomTabBar(currentTab: "Create"),
+          CustomTabBar(currentTab: "Create", currentUserId: widget.userId),
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(16.0),

@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'tabBar.dart';
 
 class BucketList extends StatelessWidget {
+  final String userId;
+
+  const BucketList({Key? key, required this.userId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          CustomTabBar(currentTab: "Bucket List"), // Always on top
+          CustomTabBar(
+              currentTab: "Bucket List", // Always on top
+              currentUserId: userId),
           Expanded(
             child: Padding(
               padding: EdgeInsets.all(8.0),

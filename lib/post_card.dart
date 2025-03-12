@@ -10,6 +10,7 @@ class PostCard extends StatelessWidget {
   final String? address; // Optional address for display
   final String? imageUrl; // Optional
   final String description;
+  final String userId;
 
   const PostCard({
     Key? key,
@@ -19,6 +20,7 @@ class PostCard extends StatelessWidget {
     this.address,
     this.imageUrl,
     required this.description,
+    required this.userId,
   }) : super(key: key);
 
   @override
@@ -61,6 +63,7 @@ class PostCard extends StatelessWidget {
                               locationName: location!,
                               locationCoords: locationCoords!,
                               address: address!,
+                              userId: userId,
                             ),
                           ),
                         );

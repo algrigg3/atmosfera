@@ -13,14 +13,45 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _loginUser() async {
+    print("Login button pressed!");
+
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
+    print('Username: $username'); // ✅ Debug: Check username
+    print('Password: $password');
+
     if (username.isEmpty || password.isEmpty) {
       print('Both fields are required');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Both username and password are required')),
+      );
       return;
     }
 
+    // ✅ Mock check
+    if (username == 'test' && password == '123') {
+      print('Mock Login Successful!');
+      final String fakeUserId = 'mock_user_id_456';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login successful! Redirecting...')),
+      );
+
+      // ✅ Navigate to TheNow page with fake userId
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => TheNow(userId: fakeUserId)),
+      );
+    } else {
+      print('Mock Login Failed!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid username or password (mock check)')),
+      );
+    }
+  }
+
+/*
     final url = Uri.parse('http://127.0.0.1:5000/api/auth/login'); //Backend API
     final response = await http.post(
       url,
@@ -35,16 +66,18 @@ class _LoginPageState extends State<LoginPage> {
     print('response body: ${response.body}');
 
     if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final String userId = responseData['userId'];
       print('Login Successful!');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => TheNow()),
+        MaterialPageRoute(builder: (context) => TheNow(userId: userId)),
       );
     } else {
       print("Login failed: ${response.body}");
     }
   }
-
+*/
   @override
   void dispose() {
     _usernameController.dispose();
@@ -74,13 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               buildInputField("Password:", "password", _passwordController),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => TheNow()),
-                  );
-                  _loginUser(); // Make sure _loginUser is called
-                },
+                onPressed: _loginUser, // Make sure _loginUser is called
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[900],
                   shape: RoundedRectangleBorder(

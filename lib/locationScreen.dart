@@ -9,6 +9,7 @@ class LocationDetailScreen extends StatefulWidget {
   final String locationName;
   final LatLng locationCoords;
   final String address;
+  final String userId;
 
   // ❌ DO NOT USE "const" because we are using a body with print
   LocationDetailScreen({
@@ -17,6 +18,7 @@ class LocationDetailScreen extends StatefulWidget {
     required this.locationName,
     required this.locationCoords,
     required this.address,
+    required this.userId,
   }) : super(key: key) {
     print(
         "Navigating to LocationDetailScreen with $locationName"); // ✅ This should print when you tap
@@ -57,8 +59,9 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
       body: Column(
         children: [
           CustomTabBar(
-              currentTab:
-                  ""), // Or omit currentTab if you want to hide highlight
+              currentTab: "",
+              currentUserId: widget
+                  .userId), // Or omit currentTab if you want to hide highlight
           SizedBox(height: 10),
 
           // Top user and location info
@@ -142,7 +145,8 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => TheNow()),
+                    MaterialPageRoute(
+                        builder: (context) => TheNow(userId: widget.userId)),
                   );
                 },
                 style: ElevatedButton.styleFrom(

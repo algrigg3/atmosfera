@@ -4,13 +4,17 @@ import 'tabBar.dart';
 import 'post_card.dart';
 
 class TheNow extends StatelessWidget {
+  final String userId;
+
+  const TheNow({Key? key, required this.userId}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
           // ✅ Custom Tab Bar
-          CustomTabBar(currentTab: "The Now"),
+          CustomTabBar(currentTab: "The Now", currentUserId: userId),
 
           // ✅ Post Feed
           Expanded(
@@ -19,6 +23,7 @@ class TheNow extends StatelessWidget {
                 PostCard(
                   username: "skyWood12",
                   description: "What's everyone up to? It's Friday night!!",
+                  userId: userId,
                 ),
                 PostCard(
                   username: "NatCarroll45",
@@ -30,6 +35,7 @@ class TheNow extends StatelessWidget {
                   imageUrl: 'images/postCard1.jpg',
                   description:
                       "The girls and I just got here! Meet us at the bar!!",
+                  userId: userId,
                 ),
                 // Add more PostCards here
               ],

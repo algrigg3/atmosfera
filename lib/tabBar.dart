@@ -3,12 +3,15 @@ import 'theNow.dart';
 import 'bucketList.dart';
 import 'createPost.dart';
 import 'searchScreen.dart';
-import 'profile.dart'; // You'll need to create this page
+import 'profile.dart';
 
 class CustomTabBar extends StatelessWidget {
   final String currentTab;
+  final String currentUserId;
 
-  const CustomTabBar({Key? key, required this.currentTab}) : super(key: key);
+  const CustomTabBar(
+      {Key? key, required this.currentTab, required this.currentUserId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +20,16 @@ class CustomTabBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildTab(context, "The Now", currentTab == "The Now", TheNow()),
+          _buildTab(context, "The Now", currentTab == "The Now",
+              TheNow(userId: currentUserId)), // ✅ Fixed
           _buildTab(context, "Bucket List", currentTab == "Bucket List",
-              BucketList()),
-          _buildIconTab(
-              context, currentTab == "Create", CreatePost()), // Plus icon
-          _buildTab(context, "Search", currentTab == "Search", SearchScreen()),
+              BucketList(userId: currentUserId)), // ✅ Fixed
+          _buildIconTab(context, currentTab == "Create",
+              CreatePost(userId: currentUserId)), // ✅ Fixed
+          _buildTab(context, "Search", currentTab == "Search",
+              SearchScreen(userId: currentUserId)), // ✅ Fixed
           _buildTab(context, "Profile", currentTab == "Profile",
-              ProfilePage()), // New profile tab
+              ProfilePage(userId: currentUserId)), // ✅ Already correct
         ],
       ),
     );
@@ -70,8 +75,7 @@ class CustomTabBar extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
         child: Icon(
-          Icons
-              .add_circle, // You can replace this with Image.asset('images/plus.png') if you have a custom image
+          Icons.add_circle, // Customizable icon
           color: isSelected ? Colors.white : Colors.white70,
           size: 30,
         ),
