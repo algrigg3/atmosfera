@@ -79,7 +79,7 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
           Container(
             height: 200,
             margin: EdgeInsets.symmetric(horizontal: 16),
-            /*child: GoogleMap(
+            child: GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: widget.locationCoords,
                 zoom: 15,
@@ -91,7 +91,7 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
                 ),
               },
               zoomControlsEnabled: false,
-            ),*/
+            ),
           ),
           SizedBox(height: 10),
 

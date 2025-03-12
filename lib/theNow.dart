@@ -26,7 +26,7 @@ class TheNow extends StatelessWidget {
                   locationCoords:
                       LatLng(26.1224, -80.1373), // ✅ Coordinates (real example)
                   address:
-                      "849 Seabreeze Blvd, Fort Lauderdale, FL 33316, United States", // ✅ Real address
+                      "801 Seabreeze Blvd, Fort Lauderdale, FL 33316", // ✅ Real address
                   imageUrl: 'images/postCard1.jpg',
                   description:
                       "The girls and I just got here! Meet us at the bar!!",
