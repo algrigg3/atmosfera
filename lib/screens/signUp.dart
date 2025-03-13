@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:atmosfera/screens/login.dart'; // ✅ Make sure this is the correct path
+import 'package:atmosfera/screens/login.dart';
 
 class SignUpPage extends StatefulWidget {
   @override

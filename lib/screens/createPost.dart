@@ -16,6 +16,15 @@ class _CreatePostState extends State<CreatePost> {
   final TextEditingController _detailsController = TextEditingController();
   String? _location;
   String? _imagePath;
+  String? _selectedCategory;
+
+  final List<String> _categories = [
+    'Coffee Shops',
+    'Restaurants',
+    'Adventure',
+    'Activity',
+    'Bars',
+  ];
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
@@ -39,7 +48,33 @@ class _CreatePostState extends State<CreatePost> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Location input
+                  // ✅ Category dropdown
+                  DropdownButtonFormField<String>(
+                    value: _selectedCategory,
+                    decoration: InputDecoration(
+                      hintText: "Select Category",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[300],
+                    ),
+                    items: _categories.map((category) {
+                      return DropdownMenuItem<String>(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategory = value;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16),
+
+                  // ✅ Location input
                   TextField(
                     decoration: InputDecoration(
                       hintText: "Add a location (optional)",
@@ -54,7 +89,7 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // Image picker
+                  // ✅ Image picker
                   GestureDetector(
                     onTap: _pickImage,
                     child: Container(
@@ -71,7 +106,7 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // Caption input
+                  // ✅ Caption input
                   TextField(
                     controller: _captionController,
                     maxLines: 2,
@@ -87,7 +122,7 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // Details input
+                  // ✅ Details input
                   TextField(
                     controller: _detailsController,
                     maxLines: 4,
@@ -103,7 +138,7 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 20),
 
-                  // Delete and Post buttons
+                  // ✅ Delete and Post buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -114,6 +149,7 @@ class _CreatePostState extends State<CreatePost> {
                             _detailsController.clear();
                             _location = null;
                             _imagePath = null;
+                            _selectedCategory = null;
                           });
                         },
                         style: ElevatedButton.styleFrom(
@@ -129,11 +165,13 @@ class _CreatePostState extends State<CreatePost> {
                       ),
                       ElevatedButton(
                         onPressed: () {
+                          // ✅ Mocked output for now, ready for backend
+                          print('Category: $_selectedCategory');
                           print('Caption: ${_captionController.text}');
                           print('Details: ${_detailsController.text}');
                           print('Location: $_location');
                           print('Image Path: $_imagePath');
-                          // TODO: Add backend integration
+                          // TODO: Add backend integration here
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[900],
