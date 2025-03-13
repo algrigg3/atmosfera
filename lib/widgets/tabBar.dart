@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'theNow.dart';
-import 'bucketList.dart';
-import 'createPost.dart';
-import 'searchScreen.dart';
-import 'profile.dart';
+import '../screens/theNow.dart';
+import '../screens/bucketList.dart';
+import '../screens/createPost.dart';
+import '../screens/searchScreen.dart';
+import '../screens/profile.dart';
 
 class CustomTabBar extends StatelessWidget {
   final String currentTab;
@@ -21,15 +21,15 @@ class CustomTabBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildTab(context, "The Now", currentTab == "The Now",
-              TheNow(userId: currentUserId)), // ✅ Fixed
+              TheNow(userId: currentUserId)),
           _buildTab(context, "Bucket List", currentTab == "Bucket List",
-              BucketList(userId: currentUserId)), // ✅ Fixed
+              BucketList(userId: currentUserId)),
           _buildIconTab(context, currentTab == "Create",
-              CreatePost(userId: currentUserId)), // ✅ Fixed
+              CreatePost(userId: currentUserId)),
           _buildTab(context, "Search", currentTab == "Search",
-              SearchScreen(userId: currentUserId)), // ✅ Fixed
+              SearchScreen(userId: currentUserId)),
           _buildTab(context, "Profile", currentTab == "Profile",
-              ProfilePage(userId: currentUserId)), // ✅ Already correct
+              ProfilePage(userId: currentUserId)),
         ],
       ),
     );

@@ -1,7 +1,7 @@
-import 'package:atmosfera/theNow.dart';
+import 'package:atmosfera/screens/theNow.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+//import 'package:http/http.dart' as http;
+//import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -18,8 +18,8 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
-    print('Username: $username'); // ✅ Debug: Check username
-    print('Password: $password');
+    print('Username: $username'); //Debug: Check username
+    print('Password: $password'); //Debug check password
 
     if (username.isEmpty || password.isEmpty) {
       print('Both fields are required');
@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    // ✅ Mock check
+    //Mock check
     if (username == 'test' && password == '123') {
       print('Mock Login Successful!');
       final String fakeUserId = 'mock_user_id_456';
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(content: Text('Login successful! Redirecting...')),
       );
 
-      // ✅ Navigate to TheNow page with fake userId
+      //Navigate to TheNow page with fake userId
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => TheNow(userId: fakeUserId)),

@@ -1,5 +1,5 @@
-import 'package:atmosfera/login.dart';
-import 'package:atmosfera/signUp.dart';
+import 'package:atmosfera/screens/login.dart';
+import 'package:atmosfera/screens/signUp.dart';
 import 'package:flutter/material.dart';
 
 void main() {

@@ -34,7 +34,7 @@ class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // ✅ User profile data variables
+  //User profile data variables
   String username = "Loading...";
   String bio = "Loading...";
   String profilePic = "https://via.placeholder.com/150";
@@ -46,7 +46,7 @@ class _ProfilePageState extends State<ProfilePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadUserProfile(); // ✅ Load user data based on userId
+    _loadUserProfile(); //Load user data based on userId
   }
 
   void _loadUserProfile() {
@@ -79,7 +79,7 @@ class _ProfilePageState extends State<ProfilePage>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // ✅ Go back to TheNow and pass userId!
+            //Go back to TheNow and pass userId!
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

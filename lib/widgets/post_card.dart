@@ -1,18 +1,16 @@
-import 'locationScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../screens/locationScreen.dart';
 
 class PostCard extends StatefulWidget {
   final String username;
-  final String? location; // Optional
+  final String? location;
   final LatLng? locationCoords;
-  final String? address; // Optional address for display
-  final String? imageUrl; // Optional
+  final String? address;
+  final String? imageUrl;
   final String description;
   final String userId;
-
   final VoidCallback onPin;
-  final VoidCallback onComment;
 
   const PostCard({
     Key? key,
@@ -23,8 +21,7 @@ class PostCard extends StatefulWidget {
     this.imageUrl,
     required this.description,
     required this.userId,
-    required this.onPin, // ✅ Required callback
-    required this.onComment, // ✅ Required callback
+    required this.onPin,
   }) : super(key: key);
 
   @override
@@ -32,12 +29,38 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  bool isPinned = false; // ✅ Track local pinned state
+  bool isPinned = false;
+  bool showComments = false;
+  List<String> comments = [
+    "Looks awesome!",
+    "Wish I was there!",
+    "Who's coming with me next time?"
+  ];
+  final TextEditingController _commentController = TextEditingController();
 
   void _togglePin() {
     setState(() {
       isPinned = !isPinned;
     });
+  }
+
+  void _toggleComments() {
+    setState(() {
+      showComments = !showComments;
+    });
+  }
+
+  void _addComment() {
+    String comment = _commentController.text.trim();
+    if (comment.isNotEmpty) {
+      setState(() {
+        comments.add(comment);
+      });
+      _commentController.clear();
+
+      // TODO: Send comment to backend API here
+      print("New comment added: $comment");
+    }
   }
 
   @override
@@ -53,7 +76,7 @@ class _PostCardState extends State<PostCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Username and optional location
+            //Username and optional location
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -64,7 +87,6 @@ class _PostCardState extends State<PostCard> {
                 if (widget.location != null)
                   GestureDetector(
                     onTap: () {
-                      print("Location tapped!"); // Debug
                       if (widget.locationCoords != null &&
                           widget.address != null) {
                         Navigator.push(
@@ -79,9 +101,6 @@ class _PostCardState extends State<PostCard> {
                             ),
                           ),
                         );
-                      } else {
-                        print(
-                            "⚠️ Missing data: locationCoords or address is null!");
                       }
                     },
                     child: Text(
@@ -96,7 +115,7 @@ class _PostCardState extends State<PostCard> {
             ),
             SizedBox(height: 10),
 
-            // ✅ Optional Image
+            //Optional Image
             if (widget.imageUrl != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
@@ -110,12 +129,12 @@ class _PostCardState extends State<PostCard> {
               SizedBox(height: 10),
             ],
 
-            // ✅ Comment & Pin icons row
+            //Like, Comment, Pin icons row
             Row(
               children: [
                 IconButton(
                   icon: Icon(Icons.comment_outlined),
-                  onPressed: widget.onComment, // ✅ Call the passed function
+                  onPressed: _toggleComments,
                 ),
                 Spacer(),
                 IconButton(
@@ -124,29 +143,69 @@ class _PostCardState extends State<PostCard> {
                     color: isPinned ? Colors.blue : null,
                   ),
                   onPressed: () {
-                    widget.onPin(); // ✅ Call external function
-                    _togglePin(); // ✅ Update local pin state to reflect in UI
+                    widget.onPin();
+                    _togglePin();
                   },
                 ),
               ],
             ),
             SizedBox(height: 10),
 
-            // ✅ Post description
+            //Post description
             Text(
               widget.description,
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 10),
 
-            // ✅ View Comments Link
+            //View Comments Link
             GestureDetector(
-              onTap: widget.onComment, // ✅ Use the same comment function
+              onTap: _toggleComments,
               child: Text(
-                'View Comments',
+                showComments ? 'Hide Comments' : 'View Comments',
                 style: TextStyle(color: Colors.blue),
               ),
             ),
+            SizedBox(height: 10),
+
+            //Comments Section (if expanded)
+            if (showComments) ...[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: comments
+                    .map((comment) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Text(
+                            "- $comment",
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                        ))
+                    .toList(),
+              ),
+              SizedBox(height: 10),
+
+              //Add Comment Input Box
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _commentController,
+                      decoration: InputDecoration(
+                        hintText: 'Add a comment...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: _addComment,
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

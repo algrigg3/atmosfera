@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'tabBar.dart';
-import 'post_card.dart';
+import '../widgets/tabBar.dart';
+import '../widgets/post_card.dart';
 
 class TheNow extends StatelessWidget {
   final String userId;
@@ -13,10 +13,10 @@ class TheNow extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // ✅ Custom Tab Bar
+          //Custom Tab Bar
           CustomTabBar(currentTab: "The Now", currentUserId: userId),
 
-          // ✅ Post Feed
+          //Post Feed
           Expanded(
             child: ListView(
               children: [
@@ -26,34 +26,26 @@ class TheNow extends StatelessWidget {
                   userId: userId,
                   onPin: () {
                     print("Post pinned by skyWood12!");
-                    // TODO: Call API to pin
-                  },
-                  onComment: () {
-                    print("Comment button clicked for skyWood12!");
-                    // TODO: Navigate to comment screen
+                    // TODO: Call API to pin this post
                   },
                 ),
                 PostCard(
                   username: "NatCarroll45",
                   location: "Marina Village",
                   locationCoords:
-                      LatLng(26.1224, -80.1373), // ✅ Coordinates (real example)
+                      LatLng(26.1224, -80.1373), //Coordinates (real example)
                   address:
-                      "801 Seabreeze Blvd, Fort Lauderdale, FL 33316", // ✅ Real address
+                      "801 Seabreeze Blvd, Fort Lauderdale, FL 33316", //Real address
                   imageUrl: 'images/postCard1.jpg',
                   description:
                       "The girls and I just got here! Meet us at the bar!!",
                   userId: userId,
                   onPin: () {
-                    print("Post pinned!");
-                    // TODO: Call your API to pin the post
-                  },
-                  onComment: () {
-                    print("Comment button clicked!");
-                    // TODO: Navigate to Comment Page
+                    print("Post pinned by NatCarroll45!");
+                    // TODO: Call API to pin this post
                   },
                 ),
-                // Add more PostCards here
+                // Add more PostCards here...
               ],
             ),
           ),

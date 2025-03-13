@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'tabBar.dart';
+import '../widgets/tabBar.dart';
 import 'theNow.dart';
 
 class LocationDetailScreen extends StatefulWidget {
@@ -11,7 +11,6 @@ class LocationDetailScreen extends StatefulWidget {
   final String address;
   final String userId;
 
-  // ❌ DO NOT USE "const" because we are using a body with print
   LocationDetailScreen({
     Key? key,
     required this.username,
@@ -20,8 +19,7 @@ class LocationDetailScreen extends StatefulWidget {
     required this.address,
     required this.userId,
   }) : super(key: key) {
-    print(
-        "Navigating to LocationDetailScreen with $locationName"); // ✅ This should print when you tap
+    print("Navigating to LocationDetailScreen with $locationName");
   }
 
   @override
