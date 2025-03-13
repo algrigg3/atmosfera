@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:atmosfera/screens/login.dart'; // ✅ Make sure this is the correct path
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -13,40 +12,78 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
+  //Mock signup function (no backend)
   Future<void> _signUpUser() async {
-    print("Sign-up button pressed");
+    print("Sign-up button pressed (MOCK)");
+
     final String username = _usernameController.text.trim();
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
     final String phone_number = _phoneController.text.trim();
 
+    //Check if any field is empty
     if (username.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
         phone_number.isEmpty) {
-      print('All fields are required');
-      return; // Stop if any field is empty
+      print('All fields are required (MOCK)');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
     }
 
-    final url =
-        Uri.parse('http://192.168.1.70:5000/api/auth/signup'); //Backend API
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        "username": username,
-        "email": email,
-        "password": password,
-        "phone_number": phone_number,
-      }),
+    //MOCK success logic (replace with real backend later)
+    print('Mock Signup successful!');
+    print('Username: $username');
+    print('Email: $email');
+    print('Password: $password');
+    print('Phone: $phone_number');
+
+    /*final url =
+    Uri.parse('http://192.168.1.70:5000/api/auth/signup'); // Backend API
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "username": username,
+          "email": email,
+          "password": password,
+          "phone_number": phone_number,
+        }),
+      );
+
+        if (response.statusCode == 201) {
+          print('Signup successful! ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Signup successful! Please log in.')),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        } else {
+          print('Signup failed: ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Signup failed: ${jsonDecode(response.body)['message'] ?? 'Try again.'}')),
+          );
+        }
+
+    */
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Signup successful! Please log in.')),
     );
 
-    if (response.statusCode == 201) {
-      print('Signup successful! ${response.body}');
-      //Navigate to login screen need to add that
-    } else {
-      print('Signup failed: ${response.body}');
-    }
+    //Navigate to LoginPage after mock signup
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    });
   }
 
   @override
@@ -65,7 +102,7 @@ class _SignUpPageState extends State<SignUpPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
+            Navigator.pop(context); // Go back
           },
         ),
       ),
@@ -86,7 +123,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   "Phone Number:", "XXX-XXX-XXXX", _phoneController),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _signUpUser, //call function
+                onPressed: _signUpUser, // Call mock signup
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[900],
                   shape: RoundedRectangleBorder(
@@ -107,8 +144,9 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 }
 
+//Reusable input field widget
 Widget buildInputField(
-    String label, String placeholder, TextEditingController usernameController,
+    String label, String placeholder, TextEditingController controller,
     {bool obscureText = false}) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -123,19 +161,20 @@ Widget buildInputField(
           label,
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
-        SizedBox(width: 10), // Space between label and TextField
+        SizedBox(width: 10),
         Flexible(
-            child: TextField(
-          controller: usernameController,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: placeholder,
-            hintStyle: TextStyle(color: Colors.white),
-            contentPadding: EdgeInsets.only(bottom: 8),
+          child: TextField(
+            controller: controller,
+            obscureText: obscureText,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: placeholder,
+              hintStyle: TextStyle(color: Colors.white),
+              contentPadding: EdgeInsets.only(bottom: 8),
+            ),
+            style: TextStyle(color: Colors.white),
           ),
-          style: TextStyle(color: Colors.white),
-        )),
+        ),
       ],
     ),
   );
