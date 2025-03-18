@@ -56,10 +56,7 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
     return Scaffold(
       body: Column(
         children: [
-          CustomTabBar(
-              currentTab: "",
-              currentUserId: widget
-                  .userId), // Or omit currentTab if you want to hide highlight
+          CustomTabBar(currentTab: "", currentUserId: widget.userId),
           SizedBox(height: 10),
 
           // Top user and location info

@@ -1,7 +1,6 @@
 import 'package:atmosfera/screens/theNow.dart';
 import 'package:flutter/material.dart';
-//import 'package:http/http.dart' as http;
-//import 'dart:convert';
+import 'package:atmosfera/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,11 +14,11 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _loginUser() async {
     print("Login button pressed!");
 
-    final String username = _usernameController.text;
-    final String password = _passwordController.text;
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
 
-    print('Username: $username'); //Debug: Check username
-    print('Password: $password'); //Debug check password
+    print('Username: $username'); // Debugging
+    print('Password: $password');
 
     if (username.isEmpty || password.isEmpty) {
       print('Both fields are required');
@@ -29,55 +28,44 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    //Mock check
-    if (username == 'test' && password == '123') {
-      print('Mock Login Successful!');
-      final String fakeUserId = 'mock_user_id_456';
+    try {
+      final authService = AuthService();
+      final response = await authService.loginUser(username, password);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful! Redirecting...')),
-      );
+      if (response.containsKey('token') && response.containsKey('userId')) {
+        print('Login Successful! Token: ${response['token']}');
 
-      //Navigate to TheNow page with fake userId
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => TheNow(userId: fakeUserId)),
-      );
-    } else {
-      print('Mock Login Failed!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login successful! Redirecting...')),
+        );
+
+        // Ensure userId is valid before navigating
+        final String userId = response['userId'];
+        if (userId.isNotEmpty) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => TheNow(userId: userId)),
+          );
+        } else {
+          print('Error: Received empty userId');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed: User ID missing')),
+          );
+        }
+      } else {
+        print('Login failed: ${response['message']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Login failed')),
+        );
+      }
+    } catch (error) {
+      print("Error logging in: $error");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid username or password (mock check)')),
+        SnackBar(content: Text('An error occurred. Please try again.')),
       );
     }
   }
 
-/*
-    final url = Uri.parse('http://127.0.0.1:5000/api/auth/login'); //Backend API
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        "username": username,
-        "password": password,
-      }),
-    );
-
-    print('Response Status: ${response.statusCode}');
-    print('response body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-      final String userId = responseData['userId'];
-      print('Login Successful!');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => TheNow(userId: userId)),
-      );
-    } else {
-      print("Login failed: ${response.body}");
-    }
-  }
-*/
   @override
   void dispose() {
     _usernameController.dispose();
@@ -102,14 +90,18 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              buildInputField("Username:", "username", _usernameController),
+              buildInputField(
+                  "Username:", "Enter your username", _usernameController),
               SizedBox(height: 10),
-              buildInputField("Password:", "password", _passwordController),
+              buildInputField(
+                  "Password:", "Enter your password", _passwordController,
+                  obscureText: true), // Fixed: obscureText
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _loginUser, // Make sure _loginUser is called
+                onPressed: _loginUser,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[900],
+                  backgroundColor: Colors.blue[
+                      900], // Fixed: Use primary instead of backgroundColor
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -128,8 +120,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+// 🛠 Reusable Input Field Widget
 Widget buildInputField(
-    String label, String placeholder, TextEditingController usernameController,
+    String label, String placeholder, TextEditingController controller,
     {bool obscureText = false}) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -146,17 +139,18 @@ Widget buildInputField(
         ),
         SizedBox(width: 10), // Space between label and TextField
         Flexible(
-            child: TextField(
-          controller: usernameController,
-          obscureText: obscureText,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            hintText: placeholder,
-            hintStyle: TextStyle(color: Colors.white),
-            contentPadding: EdgeInsets.only(bottom: 8),
+          child: TextField(
+            controller: controller,
+            obscureText: obscureText,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: placeholder,
+              hintStyle: TextStyle(color: Colors.white),
+              contentPadding: EdgeInsets.only(bottom: 8),
+            ),
+            style: TextStyle(color: Colors.white),
           ),
-          style: TextStyle(color: Colors.white),
-        )),
+        ),
       ],
     ),
   );
