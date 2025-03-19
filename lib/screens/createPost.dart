@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../services/post_service.dart';
 import '../widgets/tabBar.dart';
 
 class CreatePost extends StatefulWidget {
@@ -15,8 +16,9 @@ class _CreatePostState extends State<CreatePost> {
   final TextEditingController _captionController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
   String? _location;
-  String? _imagePath;
+  File? _imageFile;
   String? _selectedCategory;
+  bool isPosting = false;
 
   final List<String> _categories = [
     'Coffee Shops',
@@ -31,8 +33,53 @@ class _CreatePostState extends State<CreatePost> {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
-        _imagePath = image.path;
+        _imageFile = File(image.path);
       });
+    }
+  }
+
+  Future<void> _submitPost() async {
+    if (_captionController.text.isEmpty || _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Please fill in all required fields')),
+      );
+      return;
+    }
+
+    setState(() {
+      isPosting = true;
+    });
+
+    PostService postService = PostService();
+    bool success = await postService.createPost(
+      userId: widget.userId,
+      caption: _captionController.text.trim(),
+      category: _selectedCategory!,
+      location: _location,
+      imageFile: _imageFile,
+    );
+
+    setState(() {
+      isPosting = false;
+    });
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('✅ Post created successfully!')),
+      );
+
+      // **Clear fields after posting**
+      setState(() {
+        _captionController.clear();
+        _detailsController.clear();
+        _location = null;
+        _imageFile = null;
+        _selectedCategory = null;
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Failed to create post')),
+      );
     }
   }
 
@@ -99,9 +146,9 @@ class _CreatePostState extends State<CreatePost> {
                         border: Border.all(color: Colors.blue, width: 2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: _imagePath == null
+                      child: _imageFile == null
                           ? Center(child: Text('Add Image'))
-                          : Image.file(File(_imagePath!), fit: BoxFit.cover),
+                          : Image.file(_imageFile!, fit: BoxFit.cover),
                     ),
                   ),
                   SizedBox(height: 16),
@@ -122,69 +169,20 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // ✅ Details input
-                  TextField(
-                    controller: _detailsController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: "Add additional details (optional)",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+                  // ✅ Post Button
+                  ElevatedButton(
+                    onPressed: isPosting ? null : _submitPost,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[300],
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                     ),
-                  ),
-                  SizedBox(height: 20),
-
-                  // ✅ Delete and Post buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _captionController.clear();
-                            _detailsController.clear();
-                            _location = null;
-                            _imagePath = null;
-                            _selectedCategory = null;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[900],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 12),
-                        ),
-                        child: Text('Delete',
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // ✅ Mocked output for now, ready for backend
-                          print('Category: $_selectedCategory');
-                          print('Caption: ${_captionController.text}');
-                          print('Details: ${_detailsController.text}');
-                          print('Location: $_location');
-                          print('Image Path: $_imagePath');
-                          // TODO: Add backend integration here
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[900],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 12),
-                        ),
-                        child:
-                            Text('Post', style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
+                    child: isPosting
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text('Post', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
