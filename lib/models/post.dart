@@ -24,29 +24,43 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    print("📦 Parsing Post JSON: $json"); // ✅ Debug JSON parsing
+    try {
+      print("📦 Parsing Post JSON: $json");
 
-    return Post(
-      id: json['_id'] ?? "unknown_id", // ✅ Handle missing `_id`
-      userId: json['user_id'] is String
-          ? json['user_id'] // ✅ Handle case where user_id is a string
-          : json['user_id']?['_id'] ?? "unknown_user", // ✅ Handle object case
-
-      username: json['user_id'] is String
-          ? "Unknown User" // ✅ Handle missing username case
-          : json['user_id']?['username'] ?? "Anonymous",
-
-      caption: json['caption'] ?? "",
-      media: json['media'], // Image URL can be null
-      coordinates: json['location']?['coordinates'] != null
-          ? List<double>.from(json['location']['coordinates'])
-          : [0.0, 0.0], // ✅ Handle missing coordinates
-      address: json['location']?['address'] ?? "No address",
-      category: json['category'] ?? "Uncategorized",
-      likes: json['likes'] != null
-          ? List<String>.from(json['likes'].map((user) => user['_id']))
-          : [],
-      createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
-    );
+      return Post(
+        id: json['_id'] ?? "unknown_id",
+        userId: json['user_id'] is String
+            ? json['user_id']
+            : json['user_id']?['_id'] ?? "unknown_user",
+        username: json['user_id'] is String
+            ? "Unknown User"
+            : json['user_id']?['username'] ?? "Anonymous",
+        caption: json['caption'] ?? "No caption",
+        media: json['media'],
+        coordinates: json['location']?['coordinates'] != null
+            ? List<double>.from(json['location']['coordinates'])
+            : [0.0, 0.0], // Handle missing coordinates
+        address: json['location']?['address'] ?? "No address",
+        category: json['category'] ?? "Uncategorized",
+        likes: json['likes'] != null
+            ? List<String>.from(json['likes'].map((user) => user['_id']))
+            : [],
+        createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
+      );
+    } catch (e) {
+      print("❌ Error parsing post JSON: $e");
+      return Post(
+        id: "unknown",
+        userId: "unknown_user",
+        username: "Unknown User",
+        caption: "Error Loading Post",
+        media: null,
+        coordinates: [0.0, 0.0],
+        address: "No address",
+        category: "Uncategorized",
+        likes: [],
+        createdAt: DateTime.now(),
+      );
+    }
   }
 }

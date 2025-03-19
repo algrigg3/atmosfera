@@ -12,20 +12,30 @@ class PostService {
   // **✅ Fetch all posts from the backend**
   Future<List<Post>> fetchPosts() async {
     try {
-      String? token = await storage.read(key: 'jwt_token'); // ✅ Get JWT token
+      String? token = await storage.read(key: 'jwt_token');
       if (token == null) {
         print("❌ No token found! User may be logged out.");
         return [];
       }
 
       final response = await http.get(
-        Uri.parse(baseUrl),
-        headers: {'Authorization': 'Bearer $token'}, // ✅ Attach token
+        Uri.parse('http://localhost:5000/api/posts'),
+        headers: {'Authorization': 'Bearer $token'},
       );
+
+      print("🔍 Raw Response Body: ${response.body}"); // ✅ Debug API response
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
-        return jsonData.map((json) => Post.fromJson(json)).toList();
+        if (jsonData.isEmpty) {
+          print("❌ No posts available in the response.");
+          return [];
+        }
+
+        return jsonData.map((json) {
+          print("📦 Parsing Post JSON: $json"); // ✅ Debug JSON parsing
+          return Post.fromJson(json);
+        }).toList();
       } else {
         print("❌ Failed to load posts. Status Code: ${response.statusCode}");
         return [];
