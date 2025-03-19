@@ -1,25 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'theNow.dart';
-
-// Mock user data (replace with API call later)
-final Map<String, dynamic> mockUsers = {
-  "mock_user_id_456": {
-    "username": "skyWood12",
-    "bio": "Adventurer. Coder. Explorer of new places.",
-    "profilePic": "https://via.placeholder.com/150",
-    "postsCount": 12,
-    "pinsCount": 5,
-    "followersCount": 250,
-  },
-  "mock_user_id_123": {
-    "username": "NatCarroll45",
-    "bio": "Love traveling & meeting new people.",
-    "profilePic": "https://via.placeholder.com/150",
-    "postsCount": 8,
-    "pinsCount": 3,
-    "followersCount": 180,
-  },
-};
+import '../screens/editProfileScreen.dart';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -33,11 +16,14 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool isLoading = true;
+  bool hasError = false;
 
-  //User profile data variables
+  // User profile data
   String username = "Loading...";
   String bio = "Loading...";
-  String profilePic = "https://via.placeholder.com/150";
+  String email = "No email provided";
+  String phoneNumber = "No phone number provided";
   int postsCount = 0;
   int pinsCount = 0;
   int followersCount = 0;
@@ -46,23 +32,42 @@ class _ProfilePageState extends State<ProfilePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadUserProfile(); //Load user data based on userId
+    _loadUserProfile();
   }
 
-  void _loadUserProfile() {
-    final userData = mockUsers[widget.userId];
+  Future<void> _loadUserProfile() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.1.70:5000/api/auth/profile/${widget.userId}'),
+      );
 
-    if (userData != null) {
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        setState(() {
+          username = data['username'] ?? "Unknown";
+          bio = data['bio'] ?? "No bio available";
+          email = data['email'] ?? "No email provided";
+          phoneNumber = data['phone_number'] ?? "No phone number provided";
+          followersCount =
+              (data['followers'] is List) ? data['followers'].length : 0;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          hasError = true;
+          isLoading = false;
+        });
+      }
+    } catch (error) {
+      print("Error fetching profile: $error");
       setState(() {
-        username = userData["username"];
-        bio = userData["bio"];
-        profilePic = userData["profilePic"];
-        postsCount = userData["postsCount"];
-        pinsCount = userData["pinsCount"];
-        followersCount = userData["followersCount"];
+        hasError = true;
+        isLoading = false;
       });
-    } else {
-      print("⚠️ User not found!");
     }
   }
 
@@ -79,11 +84,11 @@ class _ProfilePageState extends State<ProfilePage>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            //Go back to TheNow and pass userId!
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => TheNow(userId: widget.userId)),
+                builder: (context) => TheNow(userId: widget.userId),
+              ),
             );
           },
         ),
@@ -92,8 +97,26 @@ class _ProfilePageState extends State<ProfilePage>
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Settings feature coming soon!')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProfileScreen(
+                    userId: widget.userId,
+                    username: username,
+                    bio: bio,
+                    email: email,
+                    phoneNumber: phoneNumber,
+                    onProfileUpdated:
+                        (newUsername, newBio, newEmail, newPhone) {
+                      setState(() {
+                        username = newUsername;
+                        bio = newBio;
+                        email = newEmail;
+                        phoneNumber = newPhone;
+                      });
+                    },
+                  ),
+                ),
               );
             },
           ),
@@ -106,29 +129,32 @@ class _ProfilePageState extends State<ProfilePage>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildPostsTab(), // User's posts
-          _buildBucketListTab() // User's pinned posts
-        ],
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : hasError
+              ? const Center(child: Text('❌ Failed to load profile.'))
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildPostsTab(),
+                    _buildBucketListTab(),
+                  ],
+                ),
     );
   }
 
+  /// **Profile Header (WITHOUT Profile Picture)**
   Widget _buildProfileHeader() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(profilePic),
+          const SizedBox(
+              height: 20), // ✅ Placeholder for profile picture (kept blank)
+          Text(
+            username,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
-          Text(username,
-              style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           Text(bio, style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 16),
           Row(
@@ -138,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage>
               _ProfileStat(title: 'Pins', count: pinsCount),
               _ProfileStat(title: 'Followers', count: followersCount),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -148,9 +174,7 @@ class _ProfilePageState extends State<ProfilePage>
     return Column(
       children: [
         _buildProfileHeader(),
-        const Expanded(
-          child: Center(child: Text('User Posts Here')),
-        ),
+        const Expanded(child: Center(child: Text('User Posts Here'))),
       ],
     );
   }
@@ -160,8 +184,7 @@ class _ProfilePageState extends State<ProfilePage>
       children: [
         _buildProfileHeader(),
         const Expanded(
-          child: Center(child: Text('Bucket List (Pinned Posts)')),
-        ),
+            child: Center(child: Text('Bucket List (Pinned Posts)'))),
       ],
     );
   }
@@ -178,14 +201,9 @@ class _ProfileStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          '$count',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          title,
-          style: const TextStyle(color: Colors.grey),
-        ),
+        Text('$count',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(title, style: const TextStyle(color: Colors.grey)),
       ],
     );
   }
