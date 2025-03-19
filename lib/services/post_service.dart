@@ -1,13 +1,40 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:mime/mime.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../models/post.dart'; // ✅ Import the Post model
 
 class PostService {
   final String baseUrl = 'http://192.168.1.70:5000/api/posts';
   final FlutterSecureStorage storage =
       FlutterSecureStorage(); // Secure token storage
+
+  // **✅ Fetch all posts from the backend**
+  Future<List<Post>> fetchPosts() async {
+    try {
+      String? token = await storage.read(key: 'jwt_token'); // ✅ Get JWT token
+      if (token == null) {
+        print("❌ No token found! User may be logged out.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse(baseUrl),
+        headers: {'Authorization': 'Bearer $token'}, // ✅ Attach token
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = jsonDecode(response.body);
+        return jsonData.map((json) => Post.fromJson(json)).toList();
+      } else {
+        print("❌ Failed to load posts. Status Code: ${response.statusCode}");
+        return [];
+      }
+    } catch (error) {
+      print("❌ Error fetching posts: $error");
+      return [];
+    }
+  }
 
   // **✅ Create a new post**
   Future<bool> createPost({
