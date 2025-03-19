@@ -92,4 +92,39 @@ class PostService {
       return false;
     }
   }
+
+  Future<List<Post>> fetchUserPosts(String userId) async {
+    try {
+      String? token = await storage.read(key: 'jwt_token');
+      if (token == null) {
+        print("❌ No token found! User may be logged out.");
+        return [];
+      }
+
+      final response = await http.get(
+        Uri.parse(
+            'http://localhost:5000/api/posts/user/$userId'), // ✅ API for user-specific posts
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print("🔍 Raw Response Body: ${response.body}"); // ✅ Debug API response
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = jsonDecode(response.body);
+        if (jsonData.isEmpty) {
+          print("❌ No posts available for this user.");
+          return [];
+        }
+
+        return jsonData.map((json) => Post.fromJson(json)).toList();
+      } else {
+        print(
+            "❌ Failed to load user posts. Status Code: ${response.statusCode}");
+        return [];
+      }
+    } catch (error) {
+      print("❌ Error fetching user posts: $error");
+      return [];
+    }
+  }
 }

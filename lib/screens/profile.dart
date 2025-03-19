@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import '../widgets/post_card.dart';
 import 'theNow.dart';
 import '../screens/editProfileScreen.dart';
-import 'package:http/http.dart' as http;
+import '../services/post_service.dart';
+import '../models/post.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -18,6 +22,7 @@ class _ProfilePageState extends State<ProfilePage>
   late TabController _tabController;
   bool isLoading = true;
   bool hasError = false;
+  late Future<List<Post>> userPostsFuture; // ✅ Fetch user’s posts
 
   // User profile data
   String username = "Loading...";
@@ -33,12 +38,14 @@ class _ProfilePageState extends State<ProfilePage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _loadUserProfile();
+    userPostsFuture =
+        PostService().fetchUserPosts(widget.userId); // ✅ Fetch user posts
   }
 
   Future<void> _loadUserProfile() async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.70:5000/api/auth/profile/${widget.userId}'),
+        Uri.parse('http://localhost:5000/api/auth/profile/${widget.userId}'),
       );
 
       print("Response Status Code: ${response.statusCode}");
@@ -92,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage>
             );
           },
         ),
-        title: const Text('Profile'),
+        title: Text(username),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -136,45 +143,66 @@ class _ProfilePageState extends State<ProfilePage>
               : TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildPostsTab(),
+                    _buildPostsTab(), // ✅ Display user’s posts
                     _buildBucketListTab(),
                   ],
                 ),
     );
   }
 
-  /// **Profile Header (WITHOUT Profile Picture)**
-  Widget _buildProfileHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          const SizedBox(
-              height: 20), // ✅ Placeholder for profile picture (kept blank)
-          Text(
-            username,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Text(bio, style: const TextStyle(color: Colors.grey)),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _ProfileStat(title: 'Posts', count: postsCount),
-              _ProfileStat(title: 'Pins', count: pinsCount),
-              _ProfileStat(title: 'Followers', count: followersCount),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
+  /// **✅ Modify `_buildPostsTab()` to Show User's Posts**
   Widget _buildPostsTab() {
     return Column(
       children: [
         _buildProfileHeader(),
-        const Expanded(child: Center(child: Text('User Posts Here'))),
+        Expanded(
+          child: FutureBuilder<List<Post>>(
+            future: userPostsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return const Center(child: Text("❌ Error loading posts"));
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text("No posts yet"));
+              }
+
+              List<Post> userPosts = snapshot.data!;
+              return RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {
+                    userPostsFuture =
+                        PostService().fetchUserPosts(widget.userId);
+                  });
+                },
+                child: ListView.builder(
+                  itemCount: userPosts.length,
+                  itemBuilder: (context, index) {
+                    Post post = userPosts[index];
+
+                    return PostCard(
+                      username: username,
+                      description: post.caption,
+                      location: post.address,
+                      locationCoords: post.coordinates.isNotEmpty
+                          ? LatLng(post.coordinates[1], post.coordinates[0])
+                          : null,
+                      imageUrl: post.media,
+                      userId: widget.userId,
+                      onPin: () {
+                        print("📌 Post pinned by ${post.username}!");
+                      },
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -184,8 +212,34 @@ class _ProfilePageState extends State<ProfilePage>
       children: [
         _buildProfileHeader(),
         const Expanded(
-            child: Center(child: Text('Bucket List (Pinned Posts)'))),
+          child: Center(child: Text('Bucket List (Pinned Posts)')),
+        ),
       ],
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Text(
+            username,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          Text(bio, style: const TextStyle(color: Colors.grey)),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _ProfileStat(
+                  title: 'Posts',
+                  count: 0), // ✅ Update later with real post count
+              _ProfileStat(title: 'Followers', count: followersCount),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -201,9 +255,14 @@ class _ProfileStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('$count',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        Text(title, style: const TextStyle(color: Colors.grey)),
+        Text(
+          '$count',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          title,
+          style: const TextStyle(color: Colors.grey),
+        ),
       ],
     );
   }
