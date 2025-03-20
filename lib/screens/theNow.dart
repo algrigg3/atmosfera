@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import '../screens/locationScreen.dart';
 import '../widgets/tabBar.dart';
 import '../widgets/post_card.dart';
 import '../services/post_service.dart';
@@ -168,8 +168,24 @@ class _TheNowState extends State<TheNow> {
                             : null,
                         imageUrl: post.media,
                         userId: widget.userId,
-                        onPin: () =>
-                            togglePin(post.id), // ✅ Call toggle function
+                        onPin: () => togglePin(post.id),
+                        onLocationTap: () {
+                          if (post.coordinates.isNotEmpty) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LocationDetailScreen(
+                                  username: post.username,
+                                  locationName: post.address,
+                                  locationCoords: LatLng(
+                                      post.coordinates[1], post.coordinates[0]),
+                                  address: post.address,
+                                  userId: widget.userId,
+                                ),
+                              ),
+                            );
+                          }
+                        }, // ✅ Navigate to location
                       );
                     },
                   ),

@@ -9,6 +9,7 @@ class PostCard extends StatelessWidget {
   final String? imageUrl;
   final String userId;
   final VoidCallback onPin;
+  final VoidCallback? onLocationTap; // ✅ New callback for location tap
 
   const PostCard({
     Key? key,
@@ -19,6 +20,7 @@ class PostCard extends StatelessWidget {
     this.imageUrl,
     required this.userId,
     required this.onPin,
+    this.onLocationTap, // ✅ Accept location tap callback
   }) : super(key: key);
 
   @override
@@ -39,20 +41,28 @@ class PostCard extends StatelessWidget {
             ),
             const SizedBox(height: 5),
 
-            // ✅ Location (if available)
-            if (location != null)
-              Row(
-                children: [
-                  const Icon(Icons.location_on, color: Colors.red, size: 16),
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Text(
-                      location!,
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      overflow: TextOverflow.ellipsis,
+            // ✅ Location (if available, with tap feature)
+            if (location != null && locationCoords != null)
+              GestureDetector(
+                onTap: onLocationTap, // ✅ Navigate when tapped
+                child: Row(
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.red, size: 16),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        location!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue,
+                          decoration: TextDecoration
+                              .underline, // ✅ Indicate interactivity
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
             const SizedBox(height: 10),
