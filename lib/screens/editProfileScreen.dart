@@ -51,7 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     AuthService authService = AuthService();
     await authService.logout(); // ✅ Call the logout function
 
-    print("🔄 Navigating to login screen...");
+    print("🔄 Navigating to home screen...");
 
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
