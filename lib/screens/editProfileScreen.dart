@@ -47,6 +47,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.text = widget.phoneNumber;
   }
 
+  void _handleLogout() async {
+    AuthService authService = AuthService();
+    await authService.logout(); // ✅ Call the logout function
+
+    print("🔄 Navigating to login screen...");
+
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    }
+  }
+
   /// 🚀 **Update Profile Information**
   Future<void> _updateProfile() async {
     if (_usernameController.text.isEmpty ||
@@ -214,6 +225,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: isUpdating
                     ? const CircularProgressIndicator()
                     : const Text("Update Password"),
+              ),
+
+              const SizedBox(height: 20),
+
+              // 🚀 Logout Button
+              ElevatedButton(
+                onPressed: _handleLogout,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child:
+                    const Text("Logout", style: TextStyle(color: Colors.white)),
               ),
             ],
           ),

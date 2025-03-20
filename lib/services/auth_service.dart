@@ -78,11 +78,40 @@ class AuthService {
     return await storage.read(key: 'user_id');
   }
 
-  // Logout user
   Future<void> logout() async {
-    await storage.delete(key: 'jwt_token');
-    await storage.delete(key: 'user_id');
-    print("✅ User logged out successfully");
+    try {
+      print("🚀 Logging out: Attempting to retrieve token...");
+      String? token = await getToken(); // Debugging check
+
+      if (token == null) {
+        print("⚠️ No token found! The user might already be logged out.");
+      } else {
+        print("🔍 Retrieved Token Before Logout: $token");
+
+        // ✅ Send logout request to backend
+        final response = await http.post(
+          Uri.parse('http://192.168.1.70:5000/api/auth/logout'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+
+        if (response.statusCode == 200) {
+          print("✅ Successfully logged out from backend.");
+        } else {
+          print("⚠️ Backend logout failed: ${response.body}");
+        }
+      }
+
+      // ✅ Ensure token is deleted
+      await storage.delete(key: 'jwt_token');
+      await storage.delete(key: 'user_id');
+
+      String? checkToken = await getToken(); // Check if token is really deleted
+      print("🔍 Token After Logout: $checkToken (Should be null)");
+
+      print("✅ User logged out successfully.");
+    } catch (e) {
+      print("❌ Error during logout: $e");
+    }
   }
 
   // Fetch user profile
