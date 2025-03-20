@@ -1,8 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 import '../services/post_service.dart';
 import '../widgets/tabBar.dart';
+import 'locationDetailScreen.dart'; // Import for viewing location details
+import 'selectLocationScreen.dart'; // Import for selecting location manually
 
 class CreatePost extends StatefulWidget {
   final String userId;
@@ -15,10 +20,13 @@ class CreatePost extends StatefulWidget {
 class _CreatePostState extends State<CreatePost> {
   final TextEditingController _captionController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
-  String? _location;
   File? _imageFile;
   String? _selectedCategory;
   bool isPosting = false;
+
+  String locationName = "Fetching location...";
+  LatLng? selectedCoords;
+  String address = "Detecting...";
 
   final List<String> _categories = [
     'Coffee Shops',
@@ -28,6 +36,127 @@ class _CreatePostState extends State<CreatePost> {
     'Bars',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _getUserLocation();
+  }
+
+  /// **Fetch the user's current location**
+  Future<void> _getUserLocation() async {
+    print("Fetching user location...");
+
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() => locationName = "⚠ Location services disabled.");
+        print("Error: Location services are disabled.");
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() => locationName = "⚠ Location permission denied.");
+          print("Error: Location permission denied.");
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(
+            () => locationName = "⚠ Location permission permanently denied.");
+        print("Error: Location permission permanently denied.");
+        return;
+      }
+
+      // Get user coordinates
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      print("User location: ${position.latitude}, ${position.longitude}");
+
+      // Attempt to fetch placemark (reverse geocoding)
+      List<Placemark> placemarks = [];
+      try {
+        placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+      } catch (e) {
+        print("Error fetching placemarks: $e");
+      }
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        setState(() {
+          selectedCoords = LatLng(position.latitude, position.longitude);
+          locationName = "${place.locality}, ${place.country}";
+          address =
+              "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+        });
+        print("Location fetched: $locationName");
+      } else {
+        // 🔹 Fallback if placemarks fail
+        setState(() {
+          selectedCoords = LatLng(position.latitude, position.longitude);
+          locationName = "📍 ${position.latitude}, ${position.longitude}";
+          address = "Unknown location";
+        });
+        print("Error: No placemarks found, using coordinates instead.");
+      }
+    } catch (e) {
+      setState(() => locationName = "⚠ Error fetching location.");
+      print("Exception in _getUserLocation(): $e");
+    }
+  }
+
+  /// **Let user select a location manually from Google Maps**
+  Future<void> _selectLocation() async {
+    final LatLng? pickedLocation = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SelectLocationScreen()),
+    );
+
+    if (pickedLocation != null) {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        pickedLocation.latitude,
+        pickedLocation.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        setState(() {
+          selectedCoords = pickedLocation;
+          locationName = "${place.locality}, ${place.country}";
+          address =
+              "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+        });
+      }
+    }
+  }
+
+  /// **View the selected location in detail**
+  void _viewLocationDetails() {
+    if (selectedCoords != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocationDetailScreen(
+            username: "You",
+            locationName: locationName,
+            locationCoords: selectedCoords!,
+            address: address,
+            userId: widget.userId,
+          ),
+        ),
+      );
+    }
+  }
+
+  /// **Pick an image from the gallery**
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -38,6 +167,7 @@ class _CreatePostState extends State<CreatePost> {
     }
   }
 
+  /// **Submit the post with the selected location**
   Future<void> _submitPost() async {
     if (_captionController.text.isEmpty || _selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,7 +185,7 @@ class _CreatePostState extends State<CreatePost> {
       userId: widget.userId,
       caption: _captionController.text.trim(),
       category: _selectedCategory!,
-      location: _location,
+      location: locationName, // Use selected location
       imageFile: _imageFile,
     );
 
@@ -72,9 +202,9 @@ class _CreatePostState extends State<CreatePost> {
       setState(() {
         _captionController.clear();
         _detailsController.clear();
-        _location = null;
         _imageFile = null;
         _selectedCategory = null;
+        _getUserLocation(); // Reset to current location
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -95,7 +225,6 @@ class _CreatePostState extends State<CreatePost> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ✅ Category dropdown
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
                     decoration: InputDecoration(
@@ -121,22 +250,33 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // ✅ Location input
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: "Add a location (optional)",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[300],
+                  /// **Location Selection**
+                  GestureDetector(
+                    onTap: _selectLocation,
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.blue),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            locationName,
+                            style: TextStyle(color: Colors.blue, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
-                    onChanged: (value) => _location = value,
                   ),
+                  SizedBox(height: 10),
+
+                  if (selectedCoords != null)
+                    ElevatedButton(
+                      onPressed: _viewLocationDetails,
+                      child: Text("View on Map"),
+                    ),
+
                   SizedBox(height: 16),
 
-                  // ✅ Image picker
                   GestureDetector(
                     onTap: _pickImage,
                     child: Container(
@@ -153,7 +293,6 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // ✅ Caption input
                   TextField(
                     controller: _captionController,
                     maxLines: 2,
@@ -169,20 +308,11 @@ class _CreatePostState extends State<CreatePost> {
                   ),
                   SizedBox(height: 16),
 
-                  // ✅ Post Button
                   ElevatedButton(
                     onPressed: isPosting ? null : _submitPost,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                    ),
                     child: isPosting
                         ? CircularProgressIndicator(color: Colors.white)
-                        : Text('Post', style: TextStyle(color: Colors.white)),
+                        : Text('Post'),
                   ),
                 ],
               ),
