@@ -25,7 +25,7 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     try {
-      print("📦 Parsing Post JSON: $json");
+      print(" Parsing Post JSON: $json");
 
       return Post(
         id: json['_id'] ?? "unknown_id",
@@ -48,7 +48,7 @@ class Post {
         createdAt: DateTime.tryParse(json['createdAt'] ?? "") ?? DateTime.now(),
       );
     } catch (e) {
-      print("❌ Error parsing post JSON: $e");
+      print(" Error parsing post JSON: $e");
       return Post(
         id: "unknown",
         userId: "unknown_user",

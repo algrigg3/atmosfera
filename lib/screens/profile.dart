@@ -22,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage>
   late TabController _tabController;
   bool isLoading = true;
   bool hasError = false;
-  late Future<List<Post>> userPostsFuture; // ✅ Fetch user’s posts
+  late Future<List<Post>> userPostsFuture; //  Fetch user’s posts
 
   // User profile data
   String username = "Loading...";
@@ -39,7 +39,7 @@ class _ProfilePageState extends State<ProfilePage>
     _tabController = TabController(length: 2, vsync: this);
     _loadUserProfile();
     userPostsFuture =
-        PostService().fetchUserPosts(widget.userId); // ✅ Fetch user posts
+        PostService().fetchUserPosts(widget.userId); //  Fetch user posts
   }
 
   Future<void> _loadUserProfile() async {
@@ -139,18 +139,18 @@ class _ProfilePageState extends State<ProfilePage>
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : hasError
-              ? const Center(child: Text('❌ Failed to load profile.'))
+              ? const Center(child: Text(' Failed to load profile.'))
               : TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildPostsTab(), // ✅ Display user’s posts
+                    _buildPostsTab(), //  Display user’s posts
                     _buildBucketListTab(),
                   ],
                 ),
     );
   }
 
-  /// **✅ Modify `_buildPostsTab()` to Show User's Posts**
+  /// ** Modify `_buildPostsTab()` to Show User's Posts**
   Widget _buildPostsTab() {
     return Column(
       children: [
@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage>
               }
 
               if (snapshot.hasError) {
-                return const Center(child: Text("❌ Error loading posts"));
+                return const Center(child: Text(" Error loading posts"));
               }
 
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -194,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage>
                       imageUrl: post.media,
                       userId: widget.userId,
                       onPin: () {
-                        print("📌 Post pinned by ${post.username}!");
+                        print(" Post pinned by ${post.username}!");
                       },
                     );
                   },
@@ -234,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage>
             children: [
               _ProfileStat(
                   title: 'Posts',
-                  count: 0), // ✅ Update later with real post count
+                  count: 0), //  Update later with real post count
               _ProfileStat(title: 'Followers', count: followersCount),
             ],
           ),

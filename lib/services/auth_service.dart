@@ -27,14 +27,14 @@ class AuthService {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
-        print('✅ Registration successful: ${data['message']}');
+        print(' Registration successful: ${data['message']}');
         return data;
       } else {
-        print('❌ Registration failed: ${data['message']}');
+        print(' Registration failed: ${data['message']}');
         return {'error': data['message'] ?? 'Registration failed'};
       }
     } catch (error) {
-      print("❌ Error during registration: $error");
+      print(" Error during registration: $error");
       return {'error': 'An error occurred. Please try again later.'};
     }
   }
@@ -56,14 +56,14 @@ class AuthService {
             key: 'jwt_token', value: data['token']); // Save JWT token
         await storage.write(
             key: 'user_id', value: data['userId']); // Save user ID
-        print('✅ Login successful: UserID: ${data['userId']}');
+        print(' Login successful: UserID: ${data['userId']}');
         return data;
       } else {
-        print('❌ Login failed: ${data['message']}');
+        print(' Login failed: ${data['message']}');
         return {'error': data['message'] ?? 'Login failed'};
       }
     } catch (error) {
-      print("❌ Error during login: $error");
+      print(" Error during login: $error");
       return {'error': 'An error occurred. Please try again later.'};
     }
   }
@@ -80,37 +80,37 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-      print("🚀 Logging out: Attempting to retrieve token...");
+      print(" Logging out: Attempting to retrieve token...");
       String? token = await getToken(); // Debugging check
 
       if (token == null) {
-        print("⚠️ No token found! The user might already be logged out.");
+        print(" No token found! The user might already be logged out.");
       } else {
-        print("🔍 Retrieved Token Before Logout: $token");
+        print(" Retrieved Token Before Logout: $token");
 
-        // ✅ Send logout request to backend
+        //  Send logout request to backend
         final response = await http.post(
           Uri.parse('http://192.168.1.70:5000/api/auth/logout'),
           headers: {'Authorization': 'Bearer $token'},
         );
 
         if (response.statusCode == 200) {
-          print("✅ Successfully logged out from backend.");
+          print(" Successfully logged out from backend.");
         } else {
-          print("⚠️ Backend logout failed: ${response.body}");
+          print(" Backend logout failed: ${response.body}");
         }
       }
 
-      // ✅ Ensure token is deleted
+      //  Ensure token is deleted
       await storage.delete(key: 'jwt_token');
       await storage.delete(key: 'user_id');
 
       String? checkToken = await getToken(); // Check if token is really deleted
-      print("🔍 Token After Logout: $checkToken (Should be null)");
+      print(" Token After Logout: $checkToken (Should be null)");
 
-      print("✅ User logged out successfully.");
+      print(" User logged out successfully.");
     } catch (e) {
-      print("❌ Error during logout: $e");
+      print(" Error during logout: $e");
     }
   }
 
@@ -120,7 +120,7 @@ class AuthService {
     String? userId = await getUserId();
 
     if (token == null || userId == null) {
-      print("❌ No token or user ID found. Please log in again.");
+      print(" No token or user ID found. Please log in again.");
       return null;
     }
 
@@ -132,7 +132,7 @@ class AuthService {
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      print('❌ Error fetching profile: ${response.body}');
+      print(' Error fetching profile: ${response.body}');
       return null;
     }
   }
@@ -141,12 +141,12 @@ class AuthService {
   Future<bool> updateUserProfile(Map<String, dynamic> updatedData) async {
     String? token = await getToken();
     if (token == null) {
-      print("❌ No token found. User may be logged out.");
+      print(" No token found. User may be logged out.");
       return false;
     }
 
     final response = await http.put(
-      Uri.parse('$baseUrl/update-profile'), // ✅ Corrected URL
+      Uri.parse('$baseUrl/update-profile'), //  Corrected URL
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -155,10 +155,10 @@ class AuthService {
     );
 
     if (response.statusCode == 200) {
-      print("✅ Profile updated successfully!");
+      print(" Profile updated successfully!");
       return true;
     } else {
-      print('❌ Error updating profile: ${response.body}');
+      print(' Error updating profile: ${response.body}');
       return false;
     }
   }
@@ -169,17 +169,17 @@ class AuthService {
     String? token = await authService.getToken(); // Retrieve token securely
 
     if (token == null) {
-      print("❌ No token found. User may be logged out.");
+      print(" No token found. User may be logged out.");
       return false;
     }
 
-    print("🔍 Sending PUT request to update password...");
-    print("🔑 Current Password: $currentPassword");
-    print("🔑 New Password: $newPassword");
+    print(" Sending PUT request to update password...");
+    print(" Current Password: $currentPassword");
+    print(" New Password: $newPassword");
 
     final response = await http.put(
       Uri.parse(
-          'http://192.168.1.70:5000/api/auth/update-password'), // ✅ Corrected URL
+          'http://192.168.1.70:5000/api/auth/update-password'), //  Corrected URL
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -190,14 +190,14 @@ class AuthService {
       }),
     );
 
-    print("🔍 Update Password Response Code: ${response.statusCode}");
-    print("🔍 Update Password Response Body: ${response.body}");
+    print(" Update Password Response Code: ${response.statusCode}");
+    print(" Update Password Response Body: ${response.body}");
 
     if (response.statusCode == 200) {
-      print("✅ Password updated successfully!");
+      print(" Password updated successfully!");
       return true;
     } else {
-      print("❌ Failed to update password: ${response.body}");
+      print(" Failed to update password: ${response.body}");
       return false;
     }
   }

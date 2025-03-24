@@ -36,7 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool isUpdating = false;
   final String apiUrl =
-      'http://192.168.1.70:5000/api/auth/update-profile'; // ✅ Define API URL
+      'http://192.168.1.70:5000/api/auth/update-profile'; //  Define API URL
 
   @override
   void initState() {
@@ -49,22 +49,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _handleLogout() async {
     AuthService authService = AuthService();
-    await authService.logout(); // ✅ Call the logout function
+    await authService.logout(); //  Call the logout function
 
-    print("🔄 Navigating to home screen...");
+    print(" Navigating to home screen...");
 
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }
   }
 
-  /// 🚀 **Update Profile Information**
+  ///  **Update Profile Information**
   Future<void> _updateProfile() async {
     if (_usernameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ All fields must be filled out.')),
+        const SnackBar(content: Text(' All fields must be filled out.')),
       );
       return;
     }
@@ -76,7 +76,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (token == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Unauthorized: Please log in again.')),
+        const SnackBar(content: Text(' Unauthorized: Please log in again.')),
       );
       setState(() => isUpdating = false);
       return;
@@ -109,17 +109,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Failed to update profile: ${response.body}')),
+        SnackBar(content: Text(' Failed to update profile: ${response.body}')),
       );
     }
   }
 
-  /// 🔑 **Update Password**
+  ///  **Update Password**
   Future<void> _updatePassword() async {
     if (_currentPasswordController.text.isEmpty ||
         _newPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Both fields are required.')),
+        const SnackBar(content: Text(' Both fields are required.')),
       );
       return;
     }
@@ -136,7 +136,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Password updated successfully!')),
+        const SnackBar(content: Text(' Password updated successfully!')),
       );
       _currentPasswordController.clear();
       _newPasswordController.clear();
@@ -144,7 +144,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text(
-                '❌ Failed to update password. Please check your current password.')),
+                ' Failed to update password. Please check your current password.')),
       );
     }
   }
@@ -158,25 +158,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // 📌 **Username Field**
+              //  **Username Field**
               TextField(
                 controller: _usernameController,
                 decoration: const InputDecoration(labelText: "Username"),
               ),
 
-              // 📌 **Bio Field**
+              // **Bio Field**
               TextField(
                 controller: _bioController,
                 decoration: const InputDecoration(labelText: "Bio"),
               ),
 
-              // 📌 **Email Field**
+              //  **Email Field**
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: "Email"),
               ),
 
-              // 📌 **Phone Number Field**
+              //  **Phone Number Field**
               TextField(
                 controller: _phoneController,
                 decoration: const InputDecoration(labelText: "Phone Number"),
@@ -184,7 +184,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // 📌 **Save Profile Button**
+              //  **Save Profile Button**
               ElevatedButton(
                 onPressed: isUpdating ? null : _updateProfile,
                 child: isUpdating
@@ -196,13 +196,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const Divider(),
               const SizedBox(height: 20),
 
-              // 🔑 **Password Update Section**
+              //  **Password Update Section**
               const Text(
                 "Update Password",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
 
-              // 📌 **Current Password Field**
+              //  **Current Password Field**
               TextField(
                 controller: _currentPasswordController,
                 decoration:
@@ -210,7 +210,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 obscureText: true,
               ),
 
-              // 📌 **New Password Field**
+              //  **New Password Field**
               TextField(
                 controller: _newPasswordController,
                 decoration: const InputDecoration(labelText: "New Password"),
@@ -219,7 +219,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // 📌 **Update Password Button**
+              //  **Update Password Button**
               ElevatedButton(
                 onPressed: isUpdating ? null : _updatePassword,
                 child: isUpdating
@@ -229,10 +229,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // 🚀 Logout Button
+              //  Logout Button
               ElevatedButton(
                 onPressed: _handleLogout,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Colors.blue[900]),
                 child:
                     const Text("Logout", style: TextStyle(color: Colors.white)),
               ),

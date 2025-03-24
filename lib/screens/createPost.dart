@@ -66,7 +66,7 @@ class _CreatePostState extends State<CreatePost> {
 
       if (permission == LocationPermission.deniedForever) {
         setState(
-            () => locationName = "⚠ Location permission permanently denied.");
+            () => locationName = " Location permission permanently denied.");
         print("Error: Location permission permanently denied.");
         return;
       }
@@ -102,7 +102,7 @@ class _CreatePostState extends State<CreatePost> {
         // 🔹 Fallback if placemarks fail
         setState(() {
           selectedCoords = LatLng(position.latitude, position.longitude);
-          locationName = "📍 ${position.latitude}, ${position.longitude}";
+          locationName = " ${position.latitude}, ${position.longitude}";
           address = "Unknown location";
         });
         print("Error: No placemarks found, using coordinates instead.");
@@ -171,7 +171,7 @@ class _CreatePostState extends State<CreatePost> {
   Future<void> _submitPost() async {
     if (_captionController.text.isEmpty || _selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Please fill in all required fields')),
+        SnackBar(content: Text(' Please fill in all required fields')),
       );
       return;
     }
@@ -195,7 +195,7 @@ class _CreatePostState extends State<CreatePost> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ Post created successfully!')),
+        SnackBar(content: Text(' Post created successfully!')),
       );
 
       // **Clear fields after posting**
@@ -208,7 +208,7 @@ class _CreatePostState extends State<CreatePost> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Failed to create post')),
+        SnackBar(content: Text(' Failed to create post')),
       );
     }
   }

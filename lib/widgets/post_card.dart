@@ -9,7 +9,7 @@ class PostCard extends StatelessWidget {
   final String? imageUrl;
   final String userId;
   final VoidCallback onPin;
-  final VoidCallback? onLocationTap; // ✅ New callback for location tap
+  final VoidCallback? onLocationTap; //  New callback for location tap
 
   const PostCard({
     Key? key,
@@ -20,7 +20,7 @@ class PostCard extends StatelessWidget {
     this.imageUrl,
     required this.userId,
     required this.onPin,
-    this.onLocationTap, // ✅ Accept location tap callback
+    this.onLocationTap, //  Accept location tap callback
   }) : super(key: key);
 
   @override
@@ -34,17 +34,17 @@ class PostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Username
+            //  Username
             Text(
               username,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 5),
 
-            // ✅ Location (if available, with tap feature)
+            //  Location (if available, with tap feature)
             if (location != null && locationCoords != null)
               GestureDetector(
-                onTap: onLocationTap, // ✅ Navigate when tapped
+                onTap: onLocationTap, //  Navigate when tapped
                 child: Row(
                   children: [
                     const Icon(Icons.location_on, color: Colors.red, size: 16),
@@ -67,7 +67,7 @@ class PostCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // ✅ Image (if available)
+            //  Image (if available)
             if (imageUrl != null && imageUrl!.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -85,7 +85,7 @@ class PostCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // ✅ Description
+            //  Description
             Text(
               description,
               style: const TextStyle(fontSize: 14),
@@ -93,7 +93,7 @@ class PostCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // ✅ Pin Button
+            //  Pin Button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -111,7 +111,7 @@ class PostCard extends StatelessWidget {
     );
   }
 
-  // ✅ Placeholder Image if no image is available
+  //  Placeholder Image if no image is available
   Widget _buildPlaceholderImage() {
     return Container(
       height: 200,

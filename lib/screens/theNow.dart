@@ -22,16 +22,16 @@ class TheNow extends StatefulWidget {
 class _TheNowState extends State<TheNow> {
   final PostService postService = PostService();
   late Future<List<Post>> postsFuture;
-  Set<String> pinnedPosts = {}; // ✅ Track pinned post IDs
+  Set<String> pinnedPosts = {}; //  Track pinned post IDs
 
   @override
   void initState() {
     super.initState();
     postsFuture = postService.fetchPosts();
-    fetchPinnedPosts(); // ✅ Fetch pinned posts when the screen loads
+    fetchPinnedPosts(); // Fetch pinned posts when the screen loads
   }
 
-  // ✅ Fetch pinned posts from the backend
+  // Fetch pinned posts from the backend
   Future<void> fetchPinnedPosts() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('jwt_token');
@@ -50,7 +50,7 @@ class _TheNowState extends State<TheNow> {
             pinnedData.map((post) => post['postId'] as String).toSet();
       });
     } else {
-      print("❌ Failed to fetch pinned posts");
+      print(" Failed to fetch pinned posts");
     }
   }
 
@@ -60,18 +60,18 @@ class _TheNowState extends State<TheNow> {
       String? token =
           await authService.getToken(); // Ensure we retrieve the token
 
-      print("🔍 Token Before Pin Request: $token"); // ✅ Debugging
+      print("🔍 Token Before Pin Request: $token"); //  Debugging
 
       if (token == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Please log in to pin posts.')),
+          SnackBar(content: Text(' Please log in to pin posts.')),
         );
         return;
       }
 
       bool isCurrentlyPinned = pinnedPosts.contains(postId);
       String url = isCurrentlyPinned
-          ? 'http://192.168.1.70:5000/api/bucket-list/unpin/$postId' // ✅ Unpin if already pinned
+          ? 'http://192.168.1.70:5000/api/bucket-list/unpin/$postId' //  Unpin if already pinned
           : 'http://192.168.1.70:5000/api/bucket-list/pin/$postId';
 
       Map<String, String> headers = {
@@ -79,51 +79,51 @@ class _TheNowState extends State<TheNow> {
         'Content-Type': 'application/json',
       };
 
-      print("📡 Sending Request to: $url"); // ✅ Debugging
-      print("📡 Headers: $headers"); // ✅ Debugging
+      print("📡 Sending Request to: $url"); //  Debugging
+      print("📡 Headers: $headers"); // Debugging
 
       final response = isCurrentlyPinned
           ? await http.delete(Uri.parse(url),
-              headers: headers) // ✅ Unpin request
+              headers: headers) //  Unpin request
           : await http.post(Uri.parse(url),
               headers: headers,
-              body: jsonEncode({'category': 'general'})); // ✅ Pin request
+              body: jsonEncode({'category': 'general'})); //  Pin request
 
-      print("🔄 Response Status Code: ${response.statusCode}"); // ✅ Debugging
-      print("🔄 Response Body: ${response.body}"); // ✅ Debugging
+      print("🔄 Response Status Code: ${response.statusCode}"); // Debugging
+      print("🔄 Response Body: ${response.body}"); //  Debugging
 
       if (response.statusCode == 200) {
         setState(() {
           if (isCurrentlyPinned) {
-            pinnedPosts.remove(postId); // ✅ Remove from pinned list
+            pinnedPosts.remove(postId); // Remove from pinned list
           } else {
-            pinnedPosts.add(postId); // ✅ Add to pinned list
+            pinnedPosts.add(postId); //  Add to pinned list
           }
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                isCurrentlyPinned ? '📌 Post unpinned!' : '📌 Post pinned!'),
+            content:
+                Text(isCurrentlyPinned ? 'Post unpinned!' : ' Post pinned!'),
           ),
         );
       } else {
-        print("❌ Server Response: ${response.body}"); // ✅ Debugging
+        print(" Server Response: ${response.body}"); //  Debugging
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Failed to update pin status.')),
+          SnackBar(content: Text('Failed to update pin status.')),
         );
       }
     } catch (e) {
-      print("❌ Error in togglePin(): $e");
+      print(" Error in togglePin(): $e");
     }
   }
 
-  // ✅ Refresh Posts
+  //  Refresh Posts
   Future<void> _refreshPosts() async {
     setState(() {
       postsFuture = postService.fetchPosts();
     });
-    fetchPinnedPosts(); // ✅ Also refresh pinned posts
+    fetchPinnedPosts(); //  Also refresh pinned posts
   }
 
   @override
@@ -144,7 +144,7 @@ class _TheNowState extends State<TheNow> {
                 }
 
                 if (snapshot.hasError) {
-                  return Center(child: Text("❌ Error loading posts"));
+                  return Center(child: Text(" Error loading posts"));
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -185,7 +185,7 @@ class _TheNowState extends State<TheNow> {
                               ),
                             );
                           }
-                        }, // ✅ Navigate to location
+                        }, // Navigate to location
                       );
                     },
                   ),
