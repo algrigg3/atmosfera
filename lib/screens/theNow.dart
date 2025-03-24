@@ -57,21 +57,18 @@ class _TheNowState extends State<TheNow> {
   Future<void> togglePin(String postId) async {
     try {
       final authService = AuthService();
-      String? token =
-          await authService.getToken(); // Ensure we retrieve the token
-
-      print("🔍 Token Before Pin Request: $token"); //  Debugging
+      String? token = await authService.getToken();
 
       if (token == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(' Please log in to pin posts.')),
+          SnackBar(content: Text('Please log in to pin posts.')),
         );
         return;
       }
 
       bool isCurrentlyPinned = pinnedPosts.contains(postId);
       String url = isCurrentlyPinned
-          ? 'http://192.168.1.70:5000/api/bucket-list/unpin/$postId' //  Unpin if already pinned
+          ? 'http://192.168.1.70:5000/api/bucket-list/unpin/$postId'
           : 'http://192.168.1.70:5000/api/bucket-list/pin/$postId';
 
       Map<String, String> headers = {
@@ -79,42 +76,58 @@ class _TheNowState extends State<TheNow> {
         'Content-Type': 'application/json',
       };
 
-      print("📡 Sending Request to: $url"); //  Debugging
-      print("📡 Headers: $headers"); // Debugging
-
       final response = isCurrentlyPinned
-          ? await http.delete(Uri.parse(url),
-              headers: headers) //  Unpin request
+          ? await http.delete(Uri.parse(url), headers: headers)
           : await http.post(Uri.parse(url),
-              headers: headers,
-              body: jsonEncode({'category': 'general'})); //  Pin request
+              headers: headers, body: jsonEncode({'category': 'general'}));
 
-      print("🔄 Response Status Code: ${response.statusCode}"); // Debugging
-      print("🔄 Response Body: ${response.body}"); //  Debugging
+      print("🔄 Response Status Code: ${response.statusCode}");
+      print("🔄 Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
+        // Re-fetch pinned posts to sync state
+        await fetchPinnedPosts();
+
         setState(() {
           if (isCurrentlyPinned) {
-            pinnedPosts.remove(postId); // Remove from pinned list
+            pinnedPosts.remove(postId);
           } else {
-            pinnedPosts.add(postId); //  Add to pinned list
+            pinnedPosts.add(postId);
           }
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content:
-                Text(isCurrentlyPinned ? 'Post unpinned!' : ' Post pinned!'),
+                Text(isCurrentlyPinned ? 'Post unpinned!' : 'Post pinned!'),
           ),
         );
+      } else if (response.statusCode == 400 &&
+          response.body.contains("Post already pinned")) {
+        // Handle out-of-sync case
+        await fetchPinnedPosts();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Post already pinned.")),
+        );
+      } else if (response.statusCode == 400 &&
+          response.body.contains("Post not pinned")) {
+        await fetchPinnedPosts();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Post wasn't pinned.")),
+        );
       } else {
-        print(" Server Response: ${response.body}"); //  Debugging
+        print("Server Response: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to update pin status.')),
         );
       }
     } catch (e) {
       print(" Error in togglePin(): $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred.')),
+      );
     }
   }
 
@@ -168,6 +181,9 @@ class _TheNowState extends State<TheNow> {
                             : null,
                         imageUrl: post.media,
                         userId: widget.userId,
+                        isPinned: pinnedPosts.contains(post.id),
+                        timestamp:
+                            post.createdAt, // 👈 Make sure this is a DateTime
                         onPin: () => togglePin(post.id),
                         onLocationTap: () {
                           if (post.coordinates.isNotEmpty) {
@@ -185,7 +201,7 @@ class _TheNowState extends State<TheNow> {
                               ),
                             );
                           }
-                        }, // Navigate to location
+                        },
                       );
                     },
                   ),

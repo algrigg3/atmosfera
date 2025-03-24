@@ -194,8 +194,11 @@ class _ProfilePageState extends State<ProfilePage>
                       imageUrl: post.media,
                       userId: widget.userId,
                       onPin: () {
-                        print(" Post pinned by ${post.username}!");
+                        print("Post pinned by ${post.username}!");
                       },
+                      isPinned:
+                          false, // or true if you want to test for now — later integrate pinned logic
+                      timestamp: post.createdAt, // ✅ This is required!
                     );
                   },
                 ),

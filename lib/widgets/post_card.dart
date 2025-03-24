@@ -9,7 +9,9 @@ class PostCard extends StatelessWidget {
   final String? imageUrl;
   final String userId;
   final VoidCallback onPin;
-  final VoidCallback? onLocationTap; //  New callback for location tap
+  final VoidCallback? onLocationTap;
+  final bool isPinned;
+  final DateTime timestamp; // 👈 renamed for clarity
 
   const PostCard({
     Key? key,
@@ -20,7 +22,9 @@ class PostCard extends StatelessWidget {
     this.imageUrl,
     required this.userId,
     required this.onPin,
-    this.onLocationTap, //  Accept location tap callback
+    this.onLocationTap,
+    required this.isPinned,
+    required this.timestamp,
   }) : super(key: key);
 
   @override
@@ -34,17 +38,14 @@ class PostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            //  Username
-            Text(
-              username,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+            Text(username,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 5),
 
-            //  Location (if available, with tap feature)
             if (location != null && locationCoords != null)
               GestureDetector(
-                onTap: onLocationTap, //  Navigate when tapped
+                onTap: onLocationTap,
                 child: Row(
                   children: [
                     const Icon(Icons.location_on, color: Colors.red, size: 16),
@@ -55,8 +56,7 @@ class PostCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.blue,
-                          decoration: TextDecoration
-                              .underline, // ✅ Indicate interactivity
+                          decoration: TextDecoration.underline,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -67,7 +67,6 @@ class PostCard extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            //  Image (if available)
             if (imageUrl != null && imageUrl!.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -84,24 +83,28 @@ class PostCard extends StatelessWidget {
               _buildPlaceholderImage(),
 
             const SizedBox(height: 10),
-
-            //  Description
-            Text(
-              description,
-              style: const TextStyle(fontSize: 14),
-            ),
-
+            Text(description, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 10),
 
-            //  Pin Button
+            // Timestamp
+            Text(
+              _formatTimeAgo(timestamp),
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton.icon(
                   onPressed: onPin,
-                  icon: const Icon(Icons.push_pin, color: Colors.blue),
-                  label:
-                      const Text("Pin", style: TextStyle(color: Colors.blue)),
+                  icon: Icon(Icons.push_pin,
+                      color: isPinned ? Colors.blue : Colors.blue),
+                  label: Text(
+                    isPinned ? "Pinned" : "Pin",
+                    style:
+                        TextStyle(color: isPinned ? Colors.blue : Colors.blue),
+                  ),
                 ),
               ],
             ),
@@ -111,7 +114,6 @@ class PostCard extends StatelessWidget {
     );
   }
 
-  //  Placeholder Image if no image is available
   Widget _buildPlaceholderImage() {
     return Container(
       height: 200,
@@ -124,5 +126,22 @@ class PostCard extends StatelessWidget {
         child: Icon(Icons.image, size: 50, color: Colors.grey),
       ),
     );
+  }
+
+  String _formatTimeAgo(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inSeconds < 60) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return '${timestamp.month}/${timestamp.day}/${timestamp.year}';
+    }
   }
 }
