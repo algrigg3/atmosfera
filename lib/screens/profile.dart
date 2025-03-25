@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:atmosfera/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -33,6 +34,21 @@ class _ProfilePageState extends State<ProfilePage>
   int pinsCount = 0;
   int followersCount = 0;
 
+  String selectedCategory = 'All';
+
+  final List<String> categories = [
+    'All',
+    'Coffee Shops',
+    'Restaurants',
+    'Adventure',
+    'Activity',
+    'Bars',
+  ];
+
+  List<Post> pinnedPosts = [];
+  bool isPinnedLoading = true;
+  bool pinnedHasError = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +56,60 @@ class _ProfilePageState extends State<ProfilePage>
     _loadUserProfile();
     userPostsFuture =
         PostService().fetchUserPosts(widget.userId); //  Fetch user posts
+    fetchPinnedPosts();
+  }
+
+  Future<void> fetchPinnedPosts() async {
+    try {
+      final token = await AuthService().getToken();
+      final response = await http.get(
+        Uri.parse('http://192.168.1.70:5000/api/bucket-list/bucket-list'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          pinnedPosts = data.map((json) => Post.fromJson(json)).toList();
+          isPinnedLoading = false;
+        });
+      } else {
+        setState(() {
+          pinnedHasError = true;
+          isPinnedLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching pinned posts: $e');
+      setState(() {
+        pinnedHasError = true;
+        isPinnedLoading = false;
+      });
+    }
+  }
+
+  Future<void> togglePin(String postId) async {
+    try {
+      final token = await AuthService().getToken();
+      final response = await http.delete(
+        Uri.parse('http://192.168.1.70:5000/api/bucket-list/unpin/$postId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await fetchPinnedPosts();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Post unpinned.')),
+        );
+      } else {
+        print('Failed to unpin: ${response.body}');
+      }
+    } catch (e) {
+      print('Error in togglePin: $e');
+    }
   }
 
   Future<void> _loadUserProfile() async {
@@ -211,11 +281,81 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Widget _buildBucketListTab() {
+    List<Post> filteredPosts = selectedCategory == 'All'
+        ? pinnedPosts
+        : pinnedPosts
+            .where((post) => post.category == selectedCategory)
+            .toList();
+
     return Column(
       children: [
         _buildProfileHeader(),
-        const Expanded(
-          child: Center(child: Text('Bucket List (Pinned Posts)')),
+
+        // Dropdown filter
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Text(
+                'Category: ',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: DropdownButton<String>(
+                  value: selectedCategory,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCategory = newValue!;
+                    });
+                  },
+                  isExpanded: true,
+                  items: categories.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Pinned posts list
+        Expanded(
+          child: isPinnedLoading
+              ? const Center(child: CircularProgressIndicator())
+              : pinnedHasError
+                  ? const Center(child: Text('Failed to load pinned posts.'))
+                  : RefreshIndicator(
+                      onRefresh: fetchPinnedPosts,
+                      child: filteredPosts.isEmpty
+                          ? const Center(child: Text('No pinned posts yet.'))
+                          : ListView.builder(
+                              itemCount: filteredPosts.length,
+                              itemBuilder: (context, index) {
+                                final post = filteredPosts[index];
+                                return PostCard(
+                                  username: post.username,
+                                  description: post.caption,
+                                  location: post.address,
+                                  locationCoords: post.coordinates.isNotEmpty
+                                      ? LatLng(post.coordinates[1],
+                                          post.coordinates[0])
+                                      : null,
+                                  imageUrl: post.media,
+                                  userId: widget.userId,
+                                  isPinned: true,
+                                  timestamp: post.createdAt,
+                                  onPin: () => togglePin(post.id),
+                                  onLocationTap: () {
+                                    // Optional: open location screen
+                                  },
+                                );
+                              },
+                            ),
+                    ),
         ),
       ],
     );

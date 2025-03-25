@@ -22,11 +22,11 @@ class CustomTabBar extends StatelessWidget {
         children: [
           _buildTab(context, "The Now", currentTab == "The Now",
               TheNow(userId: currentUserId)),
-          _buildTab(context, "Bucket List", currentTab == "Bucket List",
+          _buildTab(context, "Search", currentTab == "Search",
               BucketList(userId: currentUserId)),
           _buildIconTab(context, currentTab == "Create",
               CreatePost(userId: currentUserId)),
-          _buildTab(context, "Search", currentTab == "Search",
+          _buildTab(context, "Notifications", currentTab == "Notifications",
               SearchScreen(userId: currentUserId)),
           _buildTab(context, "Profile", currentTab == "Profile",
               ProfilePage(userId: currentUserId)),
