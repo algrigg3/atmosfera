@@ -24,7 +24,6 @@ class _ProfilePageState extends State<ProfilePage>
   bool isLoading = true;
   bool hasError = false;
   late Future<List<Post>> userPostsFuture; //  Fetch user’s posts
-
   late String currentUserId;
   bool isOwnProfile = false;
   bool isFollowing = false;
@@ -56,8 +55,7 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-    int tabCount = isOwnProfile ? 2 : 1;
-    _tabController = TabController(length: tabCount, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
 
     AuthService().getUserId().then((id) {
       setState(() {
