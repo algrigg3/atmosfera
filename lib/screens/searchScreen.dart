@@ -121,7 +121,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                             post.coordinates[0])
                                         : null,
                                     imageUrl: post.media,
-                                    userId: widget.userId,
+                                    userId: post.userId,
                                     isPinned: false,
                                     timestamp: post.createdAt,
                                     onPin: () {},

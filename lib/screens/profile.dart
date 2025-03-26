@@ -56,7 +56,8 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    int tabCount = isOwnProfile ? 2 : 1;
+    _tabController = TabController(length: tabCount, vsync: this);
 
     AuthService().getUserId().then((id) {
       setState(() {
@@ -118,21 +119,39 @@ class _ProfilePageState extends State<ProfilePage>
     setState(() => followLoading = true);
     try {
       final token = await AuthService().getToken();
+      if (token == null) {
+        print('❌ No token found');
+        return;
+      }
+
+      print('🔁 Toggling follow for user: ${widget.userId}');
+
       final response = await http.post(
         Uri.parse(
             'http://192.168.1.233:5000/api/users/${widget.userId}/follow'),
-        headers: {'Authorization': 'Bearer $token'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
+
+      print('📬 Status Code: ${response.statusCode}');
+      print('📨 Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
           isFollowing = data['following'];
-          followersCount += isFollowing ? 1 : -1;
+          // followerCount is updated fresh in _loadUserProfile
         });
+
+        // Refresh the full profile (including followers count)
+        await _loadUserProfile();
+      } else {
+        print('⚠️ Failed to toggle follow: ${response.body}');
       }
     } catch (e) {
-      print("Error following user: $e");
+      print('🔥 Error toggling follow: $e');
     } finally {
       setState(() => followLoading = false);
     }
