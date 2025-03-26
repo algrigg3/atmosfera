@@ -4,7 +4,7 @@ import 'auth_service.dart';
 
 class UserService {
   final String baseUrl =
-      'http://192.168.1.70/api/users'; // Replace with actual backend URL
+      'http://192.168.1.233/api/users'; // Replace with actual backend URL
 
   Future<Map<String, dynamic>> getMyProfile() async {
     String? token = await AuthService().getToken();

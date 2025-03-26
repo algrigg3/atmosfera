@@ -39,7 +39,7 @@ class _TheNowState extends State<TheNow> {
     if (token == null) return;
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.70:5000/api/bucket-list/bucket-list'),
+      Uri.parse('http://192.168.1.233:5000/api/bucket-list/bucket-list'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -68,8 +68,8 @@ class _TheNowState extends State<TheNow> {
 
       bool isCurrentlyPinned = pinnedPosts.contains(postId);
       String url = isCurrentlyPinned
-          ? 'http://192.168.1.70:5000/api/bucket-list/unpin/$postId'
-          : 'http://192.168.1.70:5000/api/bucket-list/pin/$postId';
+          ? 'http://192.168.1.233:5000/api/bucket-list/unpin/$postId'
+          : 'http://192.168.1.233:5000/api/bucket-list/pin/$postId';
 
       Map<String, String> headers = {
         'Authorization': 'Bearer $token',
@@ -180,7 +180,7 @@ class _TheNowState extends State<TheNow> {
                             ? LatLng(post.coordinates[1], post.coordinates[0])
                             : null,
                         imageUrl: post.media,
-                        userId: widget.userId,
+                        userId: post.userId,
                         isPinned: pinnedPosts.contains(post.id),
                         timestamp:
                             post.createdAt, // 👈 Make sure this is a DateTime

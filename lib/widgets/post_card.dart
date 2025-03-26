@@ -1,3 +1,4 @@
+import 'package:atmosfera/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -38,9 +39,25 @@ class PostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(username,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(userId: userId),
+                  ),
+                );
+              },
+              child: Text(
+                username,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
             const SizedBox(height: 5),
 
             if (location != null && locationCoords != null)
@@ -48,7 +65,7 @@ class PostCard extends StatelessWidget {
                 onTap: onLocationTap,
                 child: Row(
                   children: [
-                    const Icon(Icons.location_on, color: Colors.red, size: 16),
+                    const Icon(Icons.location_on, color: Colors.blue, size: 16),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(

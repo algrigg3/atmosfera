@@ -36,7 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool isUpdating = false;
   final String apiUrl =
-      'http://192.168.1.70:5000/api/auth/update-profile'; //  Define API URL
+      'http://192.168.1.233:5000/api/auth/update-profile'; //  Define API URL
 
   @override
   void initState() {

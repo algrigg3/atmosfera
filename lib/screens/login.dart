@@ -53,9 +53,9 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } else {
-        print('Login failed: ${response['message']}');
+        print('Login failed: ${response['error']}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Login failed')),
+          SnackBar(content: Text(response['error'] ?? 'Login failed')),
         );
       }
     } catch (error) {

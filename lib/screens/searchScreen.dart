@@ -29,7 +29,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     final uri = Uri.parse(
-        'http://192.168.1.70:5000/api/search?type=$searchType&query=$searchQuery');
+        'http://192.168.1.233:5000/api/search?type=$searchType&query=$searchQuery');
 
     try {
       final response = await http.get(uri);

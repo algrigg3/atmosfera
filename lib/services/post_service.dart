@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/post.dart'; //  Import the Post model
 
 class PostService {
-  final String baseUrl = 'http://192.168.1.70:5000/api/posts';
+  final String baseUrl = 'http://192.168.1.233:5000/api/posts';
   final FlutterSecureStorage storage =
       FlutterSecureStorage(); // Secure token storage
 
