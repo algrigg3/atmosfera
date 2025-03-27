@@ -87,39 +87,45 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              buildInputField(
-                  "Username:", "Enter your username", _usernameController),
-              SizedBox(height: 10),
-              buildInputField("Email:", "Enter your email", _emailController),
-              SizedBox(height: 10),
-              buildInputField(
-                  "Password:", "Enter your password", _passwordController,
-                  obscureText: true),
-              SizedBox(height: 10),
-              buildInputField(
-                  "Phone Number:", "XXX-XXX-XXXX", _phoneController),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _signUpUser, // Calls actual signup function
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors
-                      .blue[900], // Use `primary` instead of `backgroundColor`
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+        child: Center(
+          child: Container(
+            width: 320,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue.shade900, width: 3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildInputField(
+                    "Username:", "Enter your username", _usernameController),
+                const SizedBox(height: 10),
+                buildInputField("Email:", "Enter your email", _emailController),
+                const SizedBox(height: 10),
+                buildInputField(
+                    "Password:", "Enter your password", _passwordController,
+                    obscureText: true),
+                const SizedBox(height: 10),
+                buildInputField("Phone:", "XXX-XXX-XXXX", _phoneController),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _signUpUser,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
                 ),
-                child: Text(
-                  'Sign Up',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

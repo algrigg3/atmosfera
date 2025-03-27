@@ -85,34 +85,41 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              buildInputField(
-                  "Username:", "Enter your username", _usernameController),
-              SizedBox(height: 10),
-              buildInputField(
-                  "Password:", "Enter your password", _passwordController,
-                  obscureText: true), // Fixed: obscureText
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _loginUser,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[
-                      900], // Fixed: Use primary instead of backgroundColor
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+        child: Center(
+          child: Container(
+            width: 320,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.blue.shade900, width: 3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildInputField(
+                    "Username:", "Enter your username", _usernameController),
+                const SizedBox(height: 10),
+                buildInputField(
+                    "Password:", "Enter your password", _passwordController,
+                    obscureText: true),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _loginUser,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[900],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
                 ),
-                child: Text(
-                  'Login',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -120,12 +127,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// 🛠 Reusable Input Field Widget
+// Reusable Input Field Widget
 Widget buildInputField(
-    String label, String placeholder, TextEditingController controller,
-    {bool obscureText = false}) {
+  String label,
+  String placeholder,
+  TextEditingController controller, {
+  bool obscureText = false,
+}) {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 16),
+    height: 60, // 🟦 give it height to avoid cramping
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 12),
     decoration: BoxDecoration(
       color: Colors.cyanAccent[700],
       borderRadius: BorderRadius.circular(10),
@@ -135,20 +147,23 @@ Widget buildInputField(
       children: [
         Text(
           label,
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            overflow: TextOverflow.ellipsis, // ensures no wrapping
+          ),
         ),
-        SizedBox(width: 10), // Space between label and TextField
-        Flexible(
+        const SizedBox(width: 10),
+        Expanded(
           child: TextField(
             controller: controller,
             obscureText: obscureText,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: InputBorder.none,
-              hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.white),
+              hintText: '',
               contentPadding: EdgeInsets.only(bottom: 8),
             ),
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       ],
