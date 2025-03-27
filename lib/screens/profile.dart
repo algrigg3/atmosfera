@@ -286,8 +286,7 @@ class _ProfilePageState extends State<ProfilePage>
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditProfileScreen(
-                          userId:
-                              currentUserId, // 👈 Always use logged-in user ID
+                          userId: currentUserId,
                           username: username,
                           bio: bio,
                           email: email,
