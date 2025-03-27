@@ -152,7 +152,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Profile")),
+      appBar: AppBar(
+          backgroundColor: Colors.blue[900], title: const Text("Edit Profile")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -161,25 +162,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               //  **Username Field**
               TextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: "Username"),
+                decoration: InputDecoration(
+                    labelText: "Username",
+                    labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
               // **Bio Field**
               TextField(
                 controller: _bioController,
-                decoration: const InputDecoration(labelText: "Bio"),
+                decoration: InputDecoration(
+                    labelText: "Bio",
+                    labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
               //  **Email Field**
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: "Email"),
+                decoration: InputDecoration(
+                    labelText: "Email",
+                    labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
               //  **Phone Number Field**
               TextField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: "Phone Number"),
+                decoration: InputDecoration(
+                    labelText: "Phone Number",
+                    labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
               const SizedBox(height: 20),
