@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:atmosfera/screens/login.dart';
-import 'package:atmosfera/services/auth_service.dart'; // Import AuthService
+import 'package:atmosfera/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -8,43 +9,39 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
+  bool _obscurePassword = true;
+  bool isLoading = false;
+
   Future<void> _signUpUser() async {
-    print("Sign-up button pressed!");
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
 
     final String username = _usernameController.text.trim();
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
     final String phoneNumber = _phoneController.text.trim();
 
-    if (username.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        phoneNumber.isEmpty) {
-      print('All fields are required');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill in all required fields')),
-      );
-      return;
-    }
-
     try {
       final authService = AuthService();
       final response = await authService.registerUser(
-          username, email, password, phoneNumber);
+        username,
+        email,
+        password,
+        phoneNumber,
+      );
 
       if (response.containsKey('message')) {
-        print('Sign-up successful! Message: ${response['message']}');
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sign-up successful! Please log in.')),
         );
 
-        // Redirect to Login Page after successful registration
         Future.delayed(Duration(seconds: 1), () {
           Navigator.pushReplacement(
             context,
@@ -52,7 +49,6 @@ class _SignUpPageState extends State<SignUpPage> {
           );
         });
       } else {
-        print('Sign-up failed: ${response['error']}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(response['error'] ?? 'Sign-up failed. Try again.')),
@@ -63,6 +59,8 @@ class _SignUpPageState extends State<SignUpPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred. Please try again.')),
       );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -81,9 +79,7 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Go back
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
@@ -95,36 +91,96 @@ class _SignUpPageState extends State<SignUpPage> {
               border: Border.all(color: Colors.blue.shade900, width: 3),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildInputField(
-                    "Username:", "Enter your username", _usernameController),
-                const SizedBox(height: 10),
-                buildInputField("Email:", "Enter your email", _emailController),
-                const SizedBox(height: 10),
-                buildInputField(
-                    "Password:", "Enter your password", _passwordController,
-                    obscureText: true),
-                const SizedBox(height: 10),
-                buildInputField("Phone:", "XXX-XXX-XXXX", _phoneController),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _signUpUser,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[900],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildInputField(
+                    label: "Username:",
+                    placeholder: "Enter your username",
+                    controller: _usernameController,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Username is required'
+                        : null,
+                  ),
+                  SizedBox(height: 10),
+                  buildInputField(
+                    label: "Email:",
+                    placeholder: "Enter your email",
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Email is required';
+                      final emailRegex =
+                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$');
+                      return emailRegex.hasMatch(value)
+                          ? null
+                          : 'Enter a valid email';
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  buildInputField(
+                    label: "Password:",
+                    placeholder: "Enter your password",
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 15),
+                    validator: (value) => value == null || value.length < 6
+                        ? 'Password must be at least 6 characters'
+                        : null,
                   ),
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  SizedBox(height: 10),
+                  buildInputField(
+                    label: "Phone:",
+                    placeholder: "XXX-XXX-XXXX",
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Phone number is required'
+                        : null,
                   ),
-                ),
-              ],
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : _signUpUser,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
+                    child: isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            'Sign Up',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -134,9 +190,16 @@ class _SignUpPageState extends State<SignUpPage> {
 }
 
 // Reusable input field widget
-Widget buildInputField(
-    String label, String placeholder, TextEditingController controller,
-    {bool obscureText = false}) {
+Widget buildInputField({
+  required String label,
+  required String placeholder,
+  required TextEditingController controller,
+  bool obscureText = false,
+  TextInputType keyboardType = TextInputType.text,
+  List<TextInputFormatter>? inputFormatters,
+  String? Function(String?)? validator,
+  Widget? suffixIcon,
+}) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
     decoration: BoxDecoration(
@@ -151,14 +214,18 @@ Widget buildInputField(
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
         SizedBox(width: 10),
-        Flexible(
-          child: TextField(
+        Expanded(
+          child: TextFormField(
             controller: controller,
             obscureText: obscureText,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            validator: validator,
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: placeholder,
-              hintStyle: TextStyle(color: Colors.white),
+              hintStyle: TextStyle(color: Colors.white70),
+              suffixIcon: suffixIcon,
               contentPadding: EdgeInsets.only(bottom: 8),
             ),
             style: TextStyle(color: Colors.white),
