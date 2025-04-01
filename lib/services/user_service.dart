@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:atmosfera/services/constants.dart';
 import 'auth_service.dart';
 
 class UserService {
-  final String baseUrl =
-      'http://192.168.1.233/api/users'; // Replace with actual backend URL
+  final String baseUrl = '$BASE_URL/api/users';
 
   Future<Map<String, dynamic>> getMyProfile() async {
     String? token = await AuthService().getToken();
@@ -68,6 +68,6 @@ class UserService {
       },
     );
 
-    await AuthService().logout(); // Clear stored JWT
+    await AuthService().logout();
   }
 }

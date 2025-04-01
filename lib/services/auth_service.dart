@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:atmosfera/services/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
-  final String baseUrl = 'http://192.168.1.233:5000/api/auth';
+  final String baseUrl = 'http://$BASE_URL/api/auth';
   final storage = const FlutterSecureStorage(); // Secure JWT storage
 
   // User Registration
@@ -90,7 +91,7 @@ class AuthService {
 
         //  Send logout request to backend
         final response = await http.post(
-          Uri.parse('http://192.168.1.233:5000/api/auth/logout'),
+          Uri.parse('$baseUrl/logout'),
           headers: {'Authorization': 'Bearer $token'},
         );
 
@@ -178,8 +179,7 @@ class AuthService {
     print(" New Password: $newPassword");
 
     final response = await http.put(
-      Uri.parse(
-          'http://192.168.1.233:5000/api/auth/update-password'), //  Corrected URL
+      Uri.parse('$baseUrl/update-password'), //  Corrected URL
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
