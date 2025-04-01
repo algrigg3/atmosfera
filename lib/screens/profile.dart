@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:atmosfera/services/auth_service.dart';
+import 'package:atmosfera/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -55,21 +56,25 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
 
     AuthService().getUserId().then((id) {
       setState(() {
         currentUserId = id!;
         isOwnProfile = id == widget.userId;
-      });
-      if (!isOwnProfile) {
-        _checkFollowingStatus();
-      }
-    });
 
-    _loadUserProfile();
-    userPostsFuture = PostService().fetchUserPosts(widget.userId);
-    fetchPinnedPosts();
+        // ✅ Initialize the tab controller with correct length
+        _tabController =
+            TabController(length: isOwnProfile ? 2 : 1, vsync: this);
+
+        if (!isOwnProfile) {
+          _checkFollowingStatus();
+        }
+      });
+
+      _loadUserProfile();
+      userPostsFuture = PostService().fetchUserPosts(widget.userId);
+      fetchPinnedPosts();
+    });
   }
 
   @override
@@ -80,15 +85,23 @@ class _ProfilePageState extends State<ProfilePage>
         isLoading = true;
         hasError = false;
       });
+
       _loadUserProfile();
       userPostsFuture = PostService().fetchUserPosts(widget.userId);
       fetchPinnedPosts();
+
       AuthService().getUserId().then((id) {
         setState(() {
           currentUserId = id!;
           isOwnProfile = id == widget.userId;
+
+          // ✅ Recreate TabController
+          _tabController.dispose();
+          _tabController =
+              TabController(length: isOwnProfile ? 2 : 1, vsync: this);
+
+          if (!isOwnProfile) _checkFollowingStatus();
         });
-        if (!isOwnProfile) _checkFollowingStatus();
       });
     }
   }
@@ -97,8 +110,7 @@ class _ProfilePageState extends State<ProfilePage>
     try {
       final token = await AuthService().getToken();
       final response = await http.get(
-        Uri.parse(
-            'http://192.168.1.233:5000/api/users/${widget.userId}/is-following'),
+        Uri.parse('http://$BASE_URL/api/users/${widget.userId}/is-following'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -125,8 +137,7 @@ class _ProfilePageState extends State<ProfilePage>
       print('🔁 Toggling follow for user: ${widget.userId}');
 
       final response = await http.post(
-        Uri.parse(
-            'http://192.168.1.233:5000/api/users/${widget.userId}/follow'),
+        Uri.parse('http://$BASE_URL/api/users/${widget.userId}/follow'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -159,24 +170,39 @@ class _ProfilePageState extends State<ProfilePage>
     try {
       final token = await AuthService().getToken();
       final response = await http.get(
-        Uri.parse('http://192.168.1.233:5000/api/bucket-list/bucket-list'),
+        Uri.parse('http://$BASE_URL/api/bucket-list/bucket-list'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          pinnedPosts = data.map((json) => Post.fromJson(json)).toList();
-          isPinnedLoading = false;
-        });
+        final body = response.body;
+
+        if (body.isNotEmpty) {
+          final List<dynamic> data = jsonDecode(body);
+
+          setState(() {
+            pinnedPosts = data
+                .where((json) => json != null)
+                .map((json) => Post.fromJson(json))
+                .toList();
+            isPinnedLoading = false;
+          });
+        } else {
+          print('⚠️ Empty body received for pinned posts');
+          setState(() {
+            pinnedPosts = [];
+            isPinnedLoading = false;
+          });
+        }
       } else {
+        print('⚠️ Failed to fetch pinned posts: ${response.body}');
         setState(() {
           pinnedHasError = true;
           isPinnedLoading = false;
         });
       }
     } catch (e) {
-      print('Error fetching pinned posts: $e');
+      print('🔥 Error fetching pinned posts: $e');
       setState(() {
         pinnedHasError = true;
         isPinnedLoading = false;
@@ -188,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage>
     try {
       final token = await AuthService().getToken();
       final response = await http.delete(
-        Uri.parse('http://192.168.1.233:5000/api/bucket-list/unpin/$postId'),
+        Uri.parse('http://$BASE_URL/api/bucket-list/unpin/$postId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -215,13 +241,12 @@ class _ProfilePageState extends State<ProfilePage>
       print('👤 Loading profile for user ID: ${widget.userId}');
 
       final profileRes = await http.get(
-        Uri.parse(
-            'http://192.168.1.233:5000/api/auth/profile/${widget.userId}'),
+        Uri.parse('http://$BASE_URL/api/auth/profile/${widget.userId}'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       final statsRes = await http.get(
-        Uri.parse('http://192.168.1.233:5000/api/users/${widget.userId}/stats'),
+        Uri.parse('http://$BASE_URL/api/users/${widget.userId}/stats'),
         headers: {'Authorization': 'Bearer $token'},
       );
 

@@ -6,7 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/post.dart';
 
 class PostService {
-  final String baseUrl = '$BASE_URL/api/posts';
+  final String baseUrl = 'http://$BASE_URL/api/posts';
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
   // Fetch all posts

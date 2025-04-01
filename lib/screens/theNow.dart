@@ -1,3 +1,4 @@
+import 'package:atmosfera/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,7 +40,7 @@ class _TheNowState extends State<TheNow> {
     if (token == null) return;
 
     final response = await http.get(
-      Uri.parse('http://192.168.1.233:5000/api/bucket-list/bucket-list'),
+      Uri.parse('http://$BASE_URL/api/bucket-list/bucket-list'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -68,8 +69,8 @@ class _TheNowState extends State<TheNow> {
 
       bool isCurrentlyPinned = pinnedPosts.contains(postId);
       String url = isCurrentlyPinned
-          ? 'http://192.168.1.233:5000/api/bucket-list/unpin/$postId'
-          : 'http://192.168.1.233:5000/api/bucket-list/pin/$postId';
+          ? 'http://$BASE_URL/api/bucket-list/unpin/$postId'
+          : 'http://$BASE_URL/api/bucket-list/pin/$postId';
 
       Map<String, String> headers = {
         'Authorization': 'Bearer $token',
