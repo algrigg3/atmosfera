@@ -1,5 +1,5 @@
-import 'package:atmosfera/screens/theNow.dart';
 import 'package:flutter/material.dart';
+import 'package:atmosfera/screens/theNow.dart';
 import 'package:atmosfera/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -8,38 +8,29 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool isLoading = false;
 
   Future<void> _loginUser() async {
-    print("Login button pressed!");
+    if (!_formKey.currentState!.validate()) return;
 
     final String username = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
-    print('Username: $username'); // Debugging
-    print('Password: $password');
-
-    if (username.isEmpty || password.isEmpty) {
-      print('Both fields are required');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Both username and password are required')),
-      );
-      return;
-    }
+    setState(() => isLoading = true);
 
     try {
       final authService = AuthService();
       final response = await authService.loginUser(username, password);
 
       if (response.containsKey('token') && response.containsKey('userId')) {
-        print('Login Successful! Token: ${response['token']}');
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful! Redirecting...')),
         );
 
-        // Ensure userId is valid before navigating
         final String userId = response['userId'];
         if (userId.isNotEmpty) {
           Navigator.pushReplacement(
@@ -47,13 +38,11 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (context) => TheNow(userId: userId)),
           );
         } else {
-          print('Error: Received empty userId');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Login failed: User ID missing')),
           );
         }
       } else {
-        print('Login failed: ${response['error']}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['error'] ?? 'Login failed')),
         );
@@ -63,6 +52,8 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred. Please try again.')),
       );
+    } finally {
+      setState(() => isLoading = false);
     }
   }
 
@@ -79,9 +70,7 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
@@ -93,32 +82,69 @@ class _LoginPageState extends State<LoginPage> {
               border: Border.all(color: Colors.blue.shade900, width: 3),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                buildInputField(
-                    "Username:", "Enter your username", _usernameController),
-                const SizedBox(height: 10),
-                buildInputField(
-                    "Password:", "Enter your password", _passwordController,
-                    obscureText: true),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _loginUser,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[900],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  buildInputField(
+                    label: "Username:",
+                    placeholder: "Enter your username",
+                    controller: _usernameController,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Username required'
+                        : null,
+                  ),
+                  const SizedBox(height: 10),
+                  buildInputField(
+                    label: "Password:",
+                    placeholder: "Enter your password",
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 15),
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Password required'
+                        : null,
                   ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : _loginUser,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
+                    ),
+                    child: isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            'Login',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -127,41 +153,41 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// Reusable Input Field Widget
-Widget buildInputField(
-  String label,
-  String placeholder,
-  TextEditingController controller, {
+// 🔁 Reusable Input Field
+Widget buildInputField({
+  required String label,
+  required String placeholder,
+  required TextEditingController controller,
   bool obscureText = false,
+  TextInputType keyboardType = TextInputType.text,
+  String? Function(String?)? validator,
+  Widget? suffixIcon,
 }) {
   return Container(
-    height: 60, // 🟦 give it height to avoid cramping
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.symmetric(horizontal: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 16),
     decoration: BoxDecoration(
       color: Colors.cyanAccent[700],
       borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            overflow: TextOverflow.ellipsis, // ensures no wrapping
-          ),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: TextField(
+          child: TextFormField(
             controller: controller,
             obscureText: obscureText,
-            decoration: const InputDecoration(
+            keyboardType: keyboardType,
+            validator: validator,
+            decoration: InputDecoration(
               border: InputBorder.none,
-              hintText: '',
-              contentPadding: EdgeInsets.only(bottom: 8),
+              hintText: placeholder,
+              hintStyle: const TextStyle(color: Colors.white70),
+              suffixIcon: suffixIcon,
+              contentPadding: const EdgeInsets.only(bottom: 8),
             ),
             style: const TextStyle(color: Colors.white),
           ),
