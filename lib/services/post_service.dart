@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:http_parser/http_parser.dart';
 import 'package:atmosfera/services/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/post.dart';
@@ -53,6 +56,7 @@ class PostService {
     required String category,
     required String? location,
     File? imageFile,
+    Uint8List? webImage,
   }) async {
     try {
       String? token = await storage.read(key: 'jwt_token');
@@ -79,6 +83,15 @@ class PostService {
       if (imageFile != null) {
         request.files.add(
           await http.MultipartFile.fromPath('media', imageFile.path),
+        );
+      } else if (kIsWeb && webImage != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'media',
+            webImage,
+            filename: 'web_image.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          ),
         );
       }
 

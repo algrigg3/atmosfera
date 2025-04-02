@@ -1,6 +1,10 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
+import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io' if (dart.library.html) 'dart:html' as platformFile;
+import 'dart:io' show File;
+import 'package:image_picker_web/image_picker_web.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
@@ -20,7 +24,9 @@ class CreatePost extends StatefulWidget {
 class _CreatePostState extends State<CreatePost> {
   final TextEditingController _captionController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
-  File? _imageFile;
+  File? _imageFile; //for mobile
+  Uint8List? _webImage; //for web
+
   String? _selectedCategory;
   bool isPosting = false;
 
@@ -158,12 +164,31 @@ class _CreatePostState extends State<CreatePost> {
 
   /// **Pick an image from the gallery**
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _imageFile = File(image.path);
-      });
+    if (kIsWeb) {
+      final pickedBytes = await ImagePickerWeb.getImageAsBytes();
+      if (pickedBytes != null) {
+        setState(() {
+          _webImage = pickedBytes;
+        });
+      }
+    } else {
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _imageFile = File(image.path);
+        });
+      }
+    }
+  }
+
+  Widget _buildImagePreview() {
+    if (kIsWeb && _webImage != null) {
+      return Image.memory(_webImage!, height: 200);
+    } else if (_imageFile != null) {
+      return Image.file(_imageFile!, height: 200);
+    } else {
+      return const Text("No image selected");
     }
   }
 
@@ -187,6 +212,7 @@ class _CreatePostState extends State<CreatePost> {
       category: _selectedCategory!,
       location: locationName, // Use selected location
       imageFile: _imageFile,
+      webImage: _webImage,
     );
 
     setState(() {
@@ -286,9 +312,7 @@ class _CreatePostState extends State<CreatePost> {
                         border: Border.all(color: Colors.blue, width: 2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: _imageFile == null
-                          ? Center(child: Text('Add Image'))
-                          : Image.file(_imageFile!, fit: BoxFit.cover),
+                      child: _buildImagePreview(),
                     ),
                   ),
                   SizedBox(height: 16),
