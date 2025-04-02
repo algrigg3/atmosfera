@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io' if (dart.library.html) 'dart:html' as platformFile;
 import 'dart:io' show File;
 import 'package:image_picker_web/image_picker_web.dart';
 import 'package:flutter/material.dart';
