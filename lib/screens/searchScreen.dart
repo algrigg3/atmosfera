@@ -1,3 +1,4 @@
+import 'package:atmosfera/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     final uri = Uri.parse(
-        'http://192.168.1.233:5000/api/search?type=$searchType&query=$searchQuery');
+        'http://$BASE_URL/api/search?type=$searchType&query=$searchQuery');
 
     try {
       final response = await http.get(uri);

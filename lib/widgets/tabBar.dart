@@ -1,9 +1,9 @@
-import 'package:atmosfera/screens/Notifications.dart';
 import 'package:flutter/material.dart';
 import '../screens/theNow.dart';
 import '../screens/createPost.dart';
 import '../screens/searchScreen.dart';
 import '../screens/profile.dart';
+import '../screens/Notifications.dart';
 
 class CustomTabBar extends StatelessWidget {
   final String currentTab;
@@ -27,7 +27,7 @@ class CustomTabBar extends StatelessWidget {
           _buildIconTab(context, currentTab == "Create",
               CreatePost(userId: currentUserId)),
           _buildTab(context, "Notifications", currentTab == "Notifications",
-              NotificationsPage(userId: currentUserId)),
+              NotificationPage(userId: currentUserId)),
           _buildTab(context, "Profile", currentTab == "Profile",
               ProfilePage(userId: currentUserId)),
         ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:atmosfera/screens/theNow.dart';
 import 'package:atmosfera/services/auth_service.dart';
+import 'package:atmosfera/services/socket_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -27,12 +29,22 @@ class _LoginPageState extends State<LoginPage> {
       final response = await authService.loginUser(username, password);
 
       if (response.containsKey('token') && response.containsKey('userId')) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('authToken', response['token']);
+        await prefs.setString('userId', response['userId']);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful! Redirecting...')),
         );
 
         final String userId = response['userId'];
+
         if (userId.isNotEmpty) {
+          SocketService().initSocket(userId);
+
+          SocketService().onNotification((data) {
+            print('Received Notification: $data');
+          });
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => TheNow(userId: userId)),
