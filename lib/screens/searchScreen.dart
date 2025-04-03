@@ -20,6 +20,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String searchQuery = '';
   List<Post> searchResults = [];
   bool isLoading = false;
+  bool isOwnProfile = false;
 
   Future<void> performSearch() async {
     if (searchQuery.trim().isEmpty) return;
@@ -125,6 +126,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     userId: post.userId,
                                     isPinned: false,
                                     timestamp: post.createdAt,
+                                    isOwner: isOwnProfile,
                                     onPin: () {},
                                     onLocationTap: () {
                                       // Add navigation to location screen if needed

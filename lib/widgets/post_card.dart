@@ -13,6 +13,9 @@ class PostCard extends StatelessWidget {
   final VoidCallback? onLocationTap;
   final bool isPinned;
   final DateTime timestamp; // 👈 renamed for clarity
+  final bool isOwner;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const PostCard({
     Key? key,
@@ -26,6 +29,9 @@ class PostCard extends StatelessWidget {
     this.onLocationTap,
     required this.isPinned,
     required this.timestamp,
+    required this.isOwner,
+    this.onEdit,
+    this.onDelete,
   }) : super(key: key);
 
   @override
@@ -111,7 +117,7 @@ class PostCard extends StatelessWidget {
             const SizedBox(height: 4),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton.icon(
                   onPressed: onPin,
@@ -123,6 +129,23 @@ class PostCard extends StatelessWidget {
                         TextStyle(color: isPinned ? Colors.blue : Colors.blue),
                   ),
                 ),
+
+                // ➕ Show edit/delete only if it's the user's own post
+                if (isOwner)
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'edit' && onEdit != null) {
+                        onEdit!();
+                      } else if (value == 'delete' && onDelete != null) {
+                        onDelete!();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      const PopupMenuItem(
+                          value: 'delete', child: Text('Delete')),
+                    ],
+                  )
               ],
             ),
           ],

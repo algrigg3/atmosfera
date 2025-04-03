@@ -24,6 +24,7 @@ class _TheNowState extends State<TheNow> {
   final PostService postService = PostService();
   late Future<List<Post>> postsFuture;
   Set<String> pinnedPosts = {}; //  Track pinned post IDs
+  bool isOwnProfile = false;
 
   @override
   void initState() {
@@ -182,6 +183,7 @@ class _TheNowState extends State<TheNow> {
                             : null,
                         imageUrl: post.media,
                         userId: post.userId,
+                        isOwner: isOwnProfile,
                         isPinned: pinnedPosts.contains(post.id),
                         timestamp:
                             post.createdAt, // 👈 Make sure this is a DateTime
