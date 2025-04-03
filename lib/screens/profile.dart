@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:atmosfera/screens/editpostScreen.dart';
 import 'package:atmosfera/services/auth_service.dart';
 import 'package:atmosfera/services/constants.dart';
 import 'package:flutter/material.dart';
@@ -203,9 +204,11 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _handleEditPost(Post post) {
-    // TODO: Navigate to edit screen
-    print("Edit tapped for post: \${post.id}");
+  Future<void> _refreshPosts() async {
+    setState(() {
+      userPostsFuture =
+          PostService().fetchUserPosts(widget.userId); // Fetch user posts
+    });
   }
 
   @override
@@ -306,7 +309,18 @@ class _ProfilePageState extends State<ProfilePage>
                       timestamp: post.createdAt,
                       isOwner: isOwnProfile,
                       onDelete: () => _handleDeletePost(post.id),
-                      onEdit: () => _handleEditPost(post),
+                      onEdit: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditPostScreen(
+                              post: post, // Pass the post model
+                              onUpdated:
+                                  _refreshPosts, // Callback to refresh after editing
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -322,6 +336,7 @@ class _ProfilePageState extends State<ProfilePage>
     final filtered = selectedCategory == 'All'
         ? pinnedPosts
         : pinnedPosts.where((p) => p.category == selectedCategory).toList();
+
     return Column(
       children: [
         _buildProfileHeader(),
@@ -361,7 +376,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 onPin: () => togglePin(post.id),
                                 isPinned: true,
                                 timestamp: post.createdAt,
-                                isOwner: false,
+                                isOwner: widget.userId == post.userId,
                               );
                             },
                           ),

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../services/socket_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../widgets/tabBar.dart'; // Import the CustomTabBar
 
 class NotificationPage extends StatefulWidget {
   final String userId;
@@ -20,17 +21,17 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _fetchNotifications();
-    _listenToSocket(); // ✅ working now
+    _listenToSocket(); // working now
   }
 
   void _fetchNotifications() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('authToken');
 
-    print('🔐 Token from storage: $token');
+    print('Token from storage: $token');
 
     if (token == null) {
-      print('⚠️ No token found. User may not be logged in.');
+      print('No token found. User may not be logged in.');
       return;
     }
 
@@ -46,13 +47,13 @@ class _NotificationPageState extends State<NotificationPage> {
       });
       print(jsonEncode(_notifications));
     } else {
-      print("❌ Failed to load notifications: ${response.body}");
+      print("Failed to load notifications: ${response.body}");
     }
   }
 
   void _listenToSocket() {
     SocketService().onNotification((data) {
-      print('🔔 Real-time notification: $data');
+      print('Real-time notification: $data');
 
       setState(() {
         _notifications.insert(0, Map<String, dynamic>.from(data));
@@ -83,31 +84,43 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
-      body: _notifications.isEmpty
-          ? const Center(child: Text('No notifications yet.'))
-          : ListView.builder(
-              itemCount: _notifications.length,
-              itemBuilder: (context, index) {
-                final notif = _notifications[index];
-                return ListTile(
-                  leading: Icon(_getIcon(notif['type'])),
-                  title: Text(_buildTitleFromNotification(notif)),
-                  subtitle: Text(notif['type']),
-                  trailing: notif['post_id']?['media'] != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            notif['post_id']['media'],
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : null,
-                );
-              },
-            ),
+      body: Column(
+        children: [
+          // CustomTabBar
+          CustomTabBar(
+            currentTab: "Notifications",
+            currentUserId: widget.userId,
+          ),
+
+          // Notifications content
+          Expanded(
+            child: _notifications.isEmpty
+                ? const Center(child: Text('No notifications yet.'))
+                : ListView.builder(
+                    itemCount: _notifications.length,
+                    itemBuilder: (context, index) {
+                      final notif = _notifications[index];
+                      return ListTile(
+                        leading: Icon(_getIcon(notif['type'])),
+                        title: Text(_buildTitleFromNotification(notif)),
+                        subtitle: Text(notif['type']),
+                        trailing: notif['post_id']?['media'] != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  notif['post_id']['media'],
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : null,
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 

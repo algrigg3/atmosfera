@@ -9,8 +9,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import '../services/post_service.dart';
 import '../widgets/tabBar.dart';
-import 'locationDetailScreen.dart'; // Import for viewing location details
-import 'selectLocationScreen.dart'; // Import for selecting location manually
+import 'locationDetailScreen.dart';
+import 'selectLocationScreen.dart';
 
 class CreatePost extends StatefulWidget {
   final String userId;
