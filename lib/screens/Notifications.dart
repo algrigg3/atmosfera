@@ -15,18 +15,19 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   List<Map<String, dynamic>> _notifications = [];
+
   @override
   void initState() {
     super.initState();
     _fetchNotifications();
-    //_listenToSocket();
+    _listenToSocket(); // ✅ working now
   }
 
   void _fetchNotifications() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('authToken');
 
-    print('🔐 Token from storage: $token'); // debug
+    print('🔐 Token from storage: $token');
 
     if (token == null) {
       print('⚠️ No token found. User may not be logged in.');
@@ -35,9 +36,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
     final response = await http.get(
       Uri.parse('http://$BASE_URL/api/notifications'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
+      headers: {'Authorization': 'Bearer $token'},
     );
 
     if (response.statusCode == 200) {
@@ -45,9 +44,39 @@ class _NotificationPageState extends State<NotificationPage> {
       setState(() {
         _notifications = List<Map<String, dynamic>>.from(data);
       });
-      print(jsonEncode(_notifications)); // 👈 Add this
+      print(jsonEncode(_notifications));
     } else {
       print("❌ Failed to load notifications: ${response.body}");
+    }
+  }
+
+  void _listenToSocket() {
+    SocketService().onNotification((data) {
+      print('🔔 Real-time notification: $data');
+
+      setState(() {
+        _notifications.insert(0, Map<String, dynamic>.from(data));
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(data['message'] ?? 'New notification')),
+      );
+    });
+  }
+
+  String _buildTitleFromNotification(Map<String, dynamic> notif) {
+    final type = notif['type'];
+    final sender = notif['sender_id']?['username'] ?? 'Someone';
+
+    switch (type) {
+      case 'pin':
+        return '@$sender pinned your post!';
+      case 'comment':
+        return '@$sender commented on your post!';
+      case 'follow':
+        return '@$sender followed you!';
+      default:
+        return notif['message'] ?? 'You have a notification';
     }
   }
 
@@ -63,11 +92,7 @@ class _NotificationPageState extends State<NotificationPage> {
                 final notif = _notifications[index];
                 return ListTile(
                   leading: Icon(_getIcon(notif['type'])),
-                  title: Text(
-                    notif['sender_id']?['username'] != null
-                        ? '@${notif['sender_id']['username']} pinned your post!'
-                        : notif['message'], // fallback
-                  ),
+                  title: Text(_buildTitleFromNotification(notif)),
                   subtitle: Text(notif['type']),
                   trailing: notif['post_id']?['media'] != null
                       ? ClipRRect(
