@@ -45,6 +45,7 @@ class _NotificationPageState extends State<NotificationPage> {
       setState(() {
         _notifications = List<Map<String, dynamic>>.from(data);
       });
+      print(jsonEncode(_notifications)); // 👈 Add this
     } else {
       print("❌ Failed to load notifications: ${response.body}");
     }
@@ -62,8 +63,23 @@ class _NotificationPageState extends State<NotificationPage> {
                 final notif = _notifications[index];
                 return ListTile(
                   leading: Icon(_getIcon(notif['type'])),
-                  title: Text(notif['message']),
+                  title: Text(
+                    notif['sender_id']?['username'] != null
+                        ? '@${notif['sender_id']['username']} pinned your post!'
+                        : notif['message'], // fallback
+                  ),
                   subtitle: Text(notif['type']),
+                  trailing: notif['post_id']?['media'] != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            notif['post_id']['media'],
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : null,
                 );
               },
             ),
