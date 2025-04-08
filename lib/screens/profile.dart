@@ -141,6 +141,9 @@ class _ProfilePageState extends State<ProfilePage>
         Uri.parse('http://$BASE_URL/api/bucket-list/bucket-list'),
         headers: {'Authorization': 'Bearer $token'},
       );
+
+      print('📦 Pinned Posts Raw Response: ${response.body}');
+
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
@@ -148,10 +151,17 @@ class _ProfilePageState extends State<ProfilePage>
           isPinnedLoading = false;
         });
       } else {
-        setState(() => pinnedHasError = true);
+        setState(() {
+          pinnedHasError = true;
+          isPinnedLoading = false;
+        });
       }
     } catch (e) {
-      setState(() => pinnedHasError = true);
+      print("❌ Error decoding pinned posts: $e");
+      setState(() {
+        pinnedHasError = true;
+        isPinnedLoading = false;
+      });
     }
   }
 
