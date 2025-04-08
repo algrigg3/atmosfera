@@ -55,6 +55,7 @@ class PostService {
     required String caption,
     required String category,
     required String? location,
+    required Map<String, dynamic>? locationData,
     File? imageFile,
     Uint8List? webImage,
   }) async {
@@ -72,11 +73,11 @@ class PostService {
       request.fields['caption'] = caption;
       request.fields['category'] = category;
 
-      if (location != null) {
+      if (location != null && locationData != null) {
         request.fields['location'] = jsonEncode({
-          "latitude": 37.7749,
-          "longitude": -122.4194,
-          "address": location,
+          "type": "Point",
+          "coordinates": locationData["coordinates"],
+          "address": locationData["address"],
         });
       }
 

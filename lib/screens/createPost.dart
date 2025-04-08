@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart' show Uint8List, kIsWeb;
 import 'dart:typed_data';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io' show File;
-import 'package:image_picker_web/image_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_web/image_picker_web.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
+
 import '../services/post_service.dart';
+import '../services/location_service.dart'; // ✅ NEW import
 import '../widgets/tabBar.dart';
 import 'locationDetailScreen.dart';
 import 'selectLocationScreen.dart';
@@ -16,6 +17,7 @@ class CreatePost extends StatefulWidget {
   final String userId;
 
   const CreatePost({Key? key, required this.userId}) : super(key: key);
+
   @override
   _CreatePostState createState() => _CreatePostState();
 }
@@ -23,8 +25,9 @@ class CreatePost extends StatefulWidget {
 class _CreatePostState extends State<CreatePost> {
   final TextEditingController _captionController = TextEditingController();
   final TextEditingController _detailsController = TextEditingController();
-  File? _imageFile; //for mobile
-  Uint8List? _webImage; //for web
+
+  File? _imageFile;
+  Uint8List? _webImage;
 
   String? _selectedCategory;
   bool isPosting = false;
@@ -47,15 +50,11 @@ class _CreatePostState extends State<CreatePost> {
     _getUserLocation();
   }
 
-  /// **Fetch the user's current location**
   Future<void> _getUserLocation() async {
-    print("Fetching user location...");
-
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() => locationName = "⚠ Location services disabled.");
-        print("Error: Location services are disabled.");
         return;
       }
 
@@ -64,61 +63,43 @@ class _CreatePostState extends State<CreatePost> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           setState(() => locationName = "⚠ Location permission denied.");
-          print("Error: Location permission denied.");
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         setState(
-            () => locationName = " Location permission permanently denied.");
-        print("Error: Location permission permanently denied.");
+            () => locationName = "⚠ Location permission permanently denied.");
         return;
       }
 
-      // Get user coordinates
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      print("User location: ${position.latitude}, ${position.longitude}");
+      final coords = LatLng(position.latitude, position.longitude);
+      selectedCoords = coords;
 
-      // Attempt to fetch placemark (reverse geocoding)
-      List<Placemark> placemarks = [];
       try {
-        placemarks = await placemarkFromCoordinates(
-          position.latitude,
-          position.longitude,
-        );
-      } catch (e) {
-        print("Error fetching placemarks: $e");
-      }
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
+        final result = await LocationService.reverseGeocode(coords);
         setState(() {
-          selectedCoords = LatLng(position.latitude, position.longitude);
-          locationName = "${place.locality}, ${place.country}";
-          address =
-              "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+          locationName = result['locationName']!;
+          address = result['address']!;
         });
-        print("Location fetched: $locationName");
-      } else {
-        // 🔹 Fallback if placemarks fail
+      } catch (e) {
+        print("Reverse geocoding error: $e");
         setState(() {
-          selectedCoords = LatLng(position.latitude, position.longitude);
-          locationName = " ${position.latitude}, ${position.longitude}";
+          locationName =
+              "${coords.latitude.toStringAsFixed(4)}, ${coords.longitude.toStringAsFixed(4)}";
           address = "Unknown location";
         });
-        print("Error: No placemarks found, using coordinates instead.");
       }
     } catch (e) {
+      print("Location error: $e");
       setState(() => locationName = "⚠ Error fetching location.");
-      print("Exception in _getUserLocation(): $e");
     }
   }
 
-  /// **Let user select a location manually from Google Maps**
   Future<void> _selectLocation() async {
     final LatLng? pickedLocation = await Navigator.push(
       context,
@@ -126,24 +107,25 @@ class _CreatePostState extends State<CreatePost> {
     );
 
     if (pickedLocation != null) {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        pickedLocation.latitude,
-        pickedLocation.longitude,
-      );
+      selectedCoords = pickedLocation;
 
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
+      try {
+        final result = await LocationService.reverseGeocode(pickedLocation);
         setState(() {
-          selectedCoords = pickedLocation;
-          locationName = "${place.locality}, ${place.country}";
-          address =
-              "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+          locationName = result['locationName']!;
+          address = result['address']!;
+        });
+      } catch (e) {
+        print("Manual location error: $e");
+        setState(() {
+          locationName =
+              "${pickedLocation.latitude.toStringAsFixed(4)}, ${pickedLocation.longitude.toStringAsFixed(4)}";
+          address = "Unknown location";
         });
       }
     }
   }
 
-  /// **View the selected location in detail**
   void _viewLocationDetails() {
     if (selectedCoords != null) {
       Navigator.push(
@@ -161,22 +143,17 @@ class _CreatePostState extends State<CreatePost> {
     }
   }
 
-  /// **Pick an image from the gallery**
   Future<void> _pickImage() async {
     if (kIsWeb) {
       final pickedBytes = await ImagePickerWeb.getImageAsBytes();
       if (pickedBytes != null) {
-        setState(() {
-          _webImage = pickedBytes;
-        });
+        setState(() => _webImage = pickedBytes);
       }
     } else {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        setState(() {
-          _imageFile = File(image.path);
-        });
+        setState(() => _imageFile = File(image.path));
       }
     }
   }
@@ -191,49 +168,53 @@ class _CreatePostState extends State<CreatePost> {
     }
   }
 
-  /// **Submit the post with the selected location**
   Future<void> _submitPost() async {
     if (_captionController.text.isEmpty || _selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(' Please fill in all required fields')),
+        SnackBar(content: Text('Please fill in all required fields')),
       );
       return;
     }
 
-    setState(() {
-      isPosting = true;
-    });
+    setState(() => isPosting = true);
 
     PostService postService = PostService();
     bool success = await postService.createPost(
       userId: widget.userId,
       caption: _captionController.text.trim(),
       category: _selectedCategory!,
-      location: locationName, // Use selected location
+      location: locationName,
+      locationData: selectedCoords != null
+          ? {
+              'type': 'Point',
+              'coordinates': [
+                selectedCoords!.longitude,
+                selectedCoords!.latitude
+              ],
+              'address': address,
+            }
+          : null,
       imageFile: _imageFile,
       webImage: _webImage,
     );
 
-    setState(() {
-      isPosting = false;
-    });
+    setState(() => isPosting = false);
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(' Post created successfully!')),
+        SnackBar(content: Text('Post created successfully!')),
       );
-
-      // **Clear fields after posting**
       setState(() {
         _captionController.clear();
         _detailsController.clear();
         _imageFile = null;
+        _webImage = null;
         _selectedCategory = null;
-        _getUserLocation(); // Reset to current location
+        _getUserLocation(); // reset location
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(' Failed to create post')),
+        SnackBar(content: Text('Failed to create post')),
       );
     }
   }
@@ -254,28 +235,23 @@ class _CreatePostState extends State<CreatePost> {
                     value: _selectedCategory,
                     decoration: InputDecoration(
                       hintText: "Select Category",
+                      filled: true,
+                      fillColor: Colors.grey[300],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[300],
                     ),
                     items: _categories.map((category) {
-                      return DropdownMenuItem<String>(
+                      return DropdownMenuItem(
                         value: category,
                         child: Text(category),
                       );
                     }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCategory = value;
-                      });
-                    },
+                    onChanged: (value) =>
+                        setState(() => _selectedCategory = value),
                   ),
                   SizedBox(height: 16),
-
-                  /// **Location Selection**
                   GestureDetector(
                     onTap: _selectLocation,
                     child: Row(
@@ -293,15 +269,12 @@ class _CreatePostState extends State<CreatePost> {
                     ),
                   ),
                   SizedBox(height: 10),
-
                   if (selectedCoords != null)
                     ElevatedButton(
                       onPressed: _viewLocationDetails,
                       child: Text("View on Map"),
                     ),
-
                   SizedBox(height: 16),
-
                   GestureDetector(
                     onTap: _pickImage,
                     child: Container(
@@ -315,22 +288,20 @@ class _CreatePostState extends State<CreatePost> {
                     ),
                   ),
                   SizedBox(height: 16),
-
                   TextField(
                     controller: _captionController,
                     maxLines: 2,
                     decoration: InputDecoration(
                       hintText: "Add a caption",
+                      filled: true,
+                      fillColor: Colors.grey[300],
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[300],
                     ),
                   ),
                   SizedBox(height: 16),
-
                   ElevatedButton(
                     onPressed: isPosting ? null : _submitPost,
                     child: isPosting
