@@ -36,152 +36,156 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfilePage(userId: userId),
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 600), // 👈 max width for desktop
+        child: Card(
+          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Username
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ProfilePage(userId: userId)),
                   ),
-                );
-              },
-              child: Text(
-                username,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
+                  child: Text(
+                    username,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 5),
+                const SizedBox(height: 6),
 
-            if (location != null && locationCoords != null)
-              GestureDetector(
-                onTap: onLocationTap,
-                child: Row(
-                  children: [
-                    const Icon(Icons.location_on, color: Colors.blue, size: 16),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Text(
-                        location!,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
+                /// Location
+                if (location != null && locationCoords != null)
+                  GestureDetector(
+                    onTap: onLocationTap,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on,
+                            color: Colors.blue, size: 16),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            location!,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      ],
+                    ),
+                  ),
+
+                const SizedBox(height: 10),
+
+                /// Image
+                if (imageUrl != null && imageUrl!.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: AspectRatio(
+                      aspectRatio: 4 / 3, // 👈 consistent ratio
+                      child: Image.network(
+                        imageUrl!,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
                       ),
                     ),
+                  )
+                else
+                  _buildPlaceholderImage(),
+
+                const SizedBox(height: 12),
+
+                /// Caption
+                Text(description, style: const TextStyle(fontSize: 15)),
+
+                const SizedBox(height: 8),
+
+                /// Timestamp
+                Text(
+                  _formatTimeAgo(timestamp),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+
+                const SizedBox(height: 10),
+
+                /// Actions
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: onPin,
+                      icon: Icon(Icons.push_pin,
+                          color: isPinned ? Colors.blue : Colors.blue),
+                      label: Text(
+                        isPinned ? "Pinned" : "Pin",
+                        style: TextStyle(
+                            color: isPinned ? Colors.blue : Colors.blue),
+                      ),
+                    ),
+                    if (isOwner)
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit' && onEdit != null) onEdit!();
+                          if (value == 'delete' && onDelete != null)
+                            onDelete!();
+                        },
+                        itemBuilder: (_) => [
+                          const PopupMenuItem(
+                              value: 'edit', child: Text('Edit')),
+                          const PopupMenuItem(
+                              value: 'delete', child: Text('Delete')),
+                        ],
+                      ),
                   ],
                 ),
-              ),
-
-            const SizedBox(height: 10),
-
-            if (imageUrl != null && imageUrl!.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl!,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      _buildPlaceholderImage(),
-                ),
-              )
-            else
-              _buildPlaceholderImage(),
-
-            const SizedBox(height: 10),
-            Text(description, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 10),
-
-            // Timestamp
-            Text(
-              _formatTimeAgo(timestamp),
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton.icon(
-                  onPressed: onPin,
-                  icon: Icon(Icons.push_pin,
-                      color: isPinned ? Colors.blue : Colors.blue),
-                  label: Text(
-                    isPinned ? "Pinned" : "Pin",
-                    style:
-                        TextStyle(color: isPinned ? Colors.blue : Colors.blue),
-                  ),
-                ),
-
-                // ➕ Show edit/delete only if it's the user's own post
-                if (isOwner)
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'edit' && onEdit != null) {
-                        onEdit!();
-                      } else if (value == 'delete' && onDelete != null) {
-                        onDelete!();
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      const PopupMenuItem(
-                          value: 'delete', child: Text('Delete')),
-                    ],
-                  )
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildPlaceholderImage() {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: const Center(
-        child: Icon(Icons.image, size: 50, color: Colors.grey),
+    return AspectRatio(
+      aspectRatio: 4 / 3,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Center(
+          child: Icon(Icons.image, size: 50, color: Colors.grey),
+        ),
       ),
     );
   }
 
   String _formatTimeAgo(DateTime timestamp) {
     final now = DateTime.now();
-    final difference = now.difference(timestamp);
-
-    if (difference.inSeconds < 60) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${timestamp.month}/${timestamp.day}/${timestamp.year}';
-    }
+    final diff = now.difference(timestamp);
+    if (diff.inSeconds < 60) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${timestamp.month}/${timestamp.day}/${timestamp.year}';
   }
 }
