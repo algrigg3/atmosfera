@@ -195,6 +195,7 @@ class _ProfilePageState extends State<ProfilePage>
         headers: {'Authorization': 'Bearer $token'},
       );
       if (response.statusCode == 200) {
+        await _loadUserProfile(); // 👈 refresh stats like post count
         setState(() {
           userPostsFuture = PostService().fetchUserPosts(widget.userId);
         });
