@@ -38,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage>
   bool isPinnedLoading = true;
   bool pinnedHasError = false;
   bool followLoading = false;
+  bool isTabReady = false;
   String selectedCategory = 'All';
 
   final List<String> categories = [
@@ -56,6 +57,8 @@ class _ProfilePageState extends State<ProfilePage>
       currentUserId = id!;
       isOwnProfile = currentUserId == widget.userId;
       _tabController = TabController(length: isOwnProfile ? 2 : 1, vsync: this);
+
+      setState(() => isTabReady = true); // ← now trigger the UI
       if (!isOwnProfile) _checkFollowingStatus();
       _loadUserProfile();
       userPostsFuture = PostService().fetchUserPosts(widget.userId);
@@ -224,6 +227,11 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
+    if (!isTabReady) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(username),

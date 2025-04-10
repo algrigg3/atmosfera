@@ -59,7 +59,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Row(
         children: [
           // Custom Tab Bar at the top
           CustomTabBar(currentTab: "Search", currentUserId: widget.userId),

@@ -144,7 +144,7 @@ class _TheNowState extends State<TheNow> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Row(
         children: [
           // Custom Tab Bar
           CustomTabBar(currentTab: "The Now", currentUserId: widget.userId),
