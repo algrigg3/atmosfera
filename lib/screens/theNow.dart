@@ -166,7 +166,7 @@ class _TheNowState extends State<TheNow> {
                   return Center(child: Text("No posts available"));
                 }
 
-                List<Post> posts = snapshot.data!;
+                List<Post> posts = snapshot.data!.reversed.toList();
                 return RefreshIndicator(
                   onRefresh: _refreshPosts,
                   child: ListView.builder(

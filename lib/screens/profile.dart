@@ -304,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage>
                   snapshot.data!.isEmpty) {
                 return const Center(child: Text("No posts yet"));
               }
-              final posts = snapshot.data!;
+              final posts = snapshot.data!.reversed.toList();
               return RefreshIndicator(
                 onRefresh: () async {
                   setState(() => userPostsFuture =
@@ -355,8 +355,12 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildBucketListTab() {
     final filtered = selectedCategory == 'All'
-        ? pinnedPosts
-        : pinnedPosts.where((p) => p.category == selectedCategory).toList();
+        ? pinnedPosts.reversed.toList()
+        : pinnedPosts
+            .where((p) => p.category == selectedCategory)
+            .toList()
+            .reversed
+            .toList();
 
     return Column(
       children: [

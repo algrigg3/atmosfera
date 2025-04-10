@@ -54,107 +54,137 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTabBar(currentTab: "", currentUserId: widget.userId),
-          SizedBox(height: 10),
-
-          // Top user and location info
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            decoration: BoxDecoration(
-              color: Colors.blue[900],
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Text(
-              '${widget.username} is @${widget.locationName}',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-          ),
-          SizedBox(height: 10),
-
-          // Google Maps view
-          Container(
-            height: 200,
-            margin: EdgeInsets.symmetric(horizontal: 16),
-            child: GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: widget.locationCoords,
-                zoom: 15,
-              ),
-              markers: {
-                Marker(
-                  markerId: MarkerId('post_location'),
-                  position: widget.locationCoords,
-                ),
-              },
-              zoomControlsEnabled: false,
-            ),
-          ),
-          SizedBox(height: 10),
-
-          // Distance display
-          Container(
-            padding: EdgeInsets.all(10),
-            color: Colors.teal,
-            child: Text(
-              distanceInMiles != null
-                  ? '${widget.username} is ${distanceInMiles!.toStringAsFixed(2)} miles away from your current location'
-                  : 'Calculating distance...',
-              style: TextStyle(color: Colors.white, fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(height: 10),
-
-          // Address display
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'Address: ${widget.address}',
-              style:
-                  TextStyle(decoration: TextDecoration.underline, fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(height: 20),
-
-          // Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Handle Pin action
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[900],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Banner
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[900],
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        '${widget.username} is @${widget.locationName}',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                ),
-                child: Text('Pin', style: TextStyle(color: Colors.white)),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TheNow(userId: widget.userId)),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[900],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                  const SizedBox(height: 20),
+
+                  // Google Map
+                  Center(
+                    child: SizedBox(
+                      width:
+                          800, // Limit width for better centering on big screens
+                      height: 300,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: widget.locationCoords,
+                            zoom: 15,
+                          ),
+                          markers: {
+                            Marker(
+                              markerId: MarkerId('post_location'),
+                              position: widget.locationCoords,
+                            ),
+                          },
+                          zoomControlsEnabled: false,
+                        ),
+                      ),
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                ),
-                child: Text('Back to The Now',
-                    style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 20),
+
+                  // Distance
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.teal,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        distanceInMiles != null
+                            ? '${widget.username} is ${distanceInMiles!.toStringAsFixed(2)} miles away from your current location'
+                            : 'Calculating distance...',
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Address
+                  Center(
+                    child: Text(
+                      'Address: ${widget.address}',
+                      style: const TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Buttons
+                  Center(
+                    child: Wrap(
+                      spacing: 20,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            // TODO: Pin logic
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[900],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 12),
+                          ),
+                          child: const Text('Pin',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      TheNow(userId: widget.userId)),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[900],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 12),
+                          ),
+                          child: const Text('Back to The Now',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),
