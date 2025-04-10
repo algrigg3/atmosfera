@@ -29,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage>
   String bio = "Loading...";
   String email = "No email provided";
   String phoneNumber = "No phone number provided";
+  String profilePictureUrl = "";
   int postsCount = 0;
   int followersCount = 0;
   bool isOwnProfile = false;
@@ -57,8 +58,7 @@ class _ProfilePageState extends State<ProfilePage>
       currentUserId = id!;
       isOwnProfile = currentUserId == widget.userId;
       _tabController = TabController(length: isOwnProfile ? 2 : 1, vsync: this);
-
-      setState(() => isTabReady = true); // ← now trigger the UI
+      setState(() => isTabReady = true);
       if (!isOwnProfile) _checkFollowingStatus();
       _loadUserProfile();
       userPostsFuture = PostService().fetchUserPosts(widget.userId);
@@ -105,6 +105,23 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
+  Future<void> togglePin(String postId) async {
+    try {
+      final token = await AuthService().getToken();
+      final response = await http.delete(
+        Uri.parse('http://$BASE_URL/api/bucket-list/unpin/$postId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        await fetchPinnedPosts();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Post unpinned.')));
+      }
+    } catch (e) {
+      print('Error in togglePin: $e');
+    }
+  }
+
   Future<void> _loadUserProfile() async {
     try {
       final token = await AuthService().getToken();
@@ -125,6 +142,7 @@ class _ProfilePageState extends State<ProfilePage>
           bio = profileData['bio'] ?? "";
           email = profileData['email'] ?? "";
           phoneNumber = profileData['phone_number'] ?? "";
+          profilePictureUrl = profileData['profile_picture'] ?? "";
           followersCount = statsData['followerCount'] ?? 0;
           postsCount = statsData['postCount'] ?? 0;
           isLoading = false;
@@ -145,12 +163,14 @@ class _ProfilePageState extends State<ProfilePage>
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      print('📦 Pinned Posts Raw Response: ${response.body}');
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          pinnedPosts = data.map((json) => Post.fromJson(json)).toList();
+          pinnedPosts = data
+              .map((json) => Post.fromJson(json))
+              .toList()
+              .reversed
+              .toList();
           isPinnedLoading = false;
         });
       } else {
@@ -160,69 +180,11 @@ class _ProfilePageState extends State<ProfilePage>
         });
       }
     } catch (e) {
-      print("❌ Error decoding pinned posts: $e");
       setState(() {
         pinnedHasError = true;
         isPinnedLoading = false;
       });
     }
-  }
-
-  Future<void> togglePin(String postId) async {
-    try {
-      final token = await AuthService().getToken();
-      final response = await http.delete(
-        Uri.parse('http://$BASE_URL/api/bucket-list/unpin/$postId'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-      if (response.statusCode == 200) {
-        await fetchPinnedPosts();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Post unpinned.')));
-      }
-    } catch (e) {
-      print('Error in togglePin: $e');
-    }
-  }
-
-  void _handleDeletePost(String postId) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Post'),
-        content: const Text('Are you sure you want to delete this post?'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
-          TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete')),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      final token = await AuthService().getToken();
-      final response = await http.delete(
-        Uri.parse('http://$BASE_URL/api/posts/$postId'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-      if (response.statusCode == 200) {
-        await _loadUserProfile(); // 👈 refresh stats like post count
-        setState(() {
-          userPostsFuture = PostService().fetchUserPosts(widget.userId);
-        });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Post deleted')));
-      }
-    }
-  }
-
-  Future<void> _refreshPosts() async {
-    setState(() {
-      userPostsFuture =
-          PostService().fetchUserPosts(widget.userId); // Fetch user posts
-    });
   }
 
   @override
@@ -275,81 +237,110 @@ class _ProfilePageState extends State<ProfilePage>
               : const [Tab(text: 'Posts')],
         ),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : hasError
-              ? const Center(child: Text('Failed to load profile.'))
-              : TabBarView(
-                  controller: _tabController,
-                  children: isOwnProfile
-                      ? [_buildPostsTab(), _buildBucketListTab()]
-                      : [_buildPostsTab()],
+      body: Row(
+        children: [
+          Container(
+            width: 220,
+            color: Colors.blue[900],
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: profilePictureUrl.isNotEmpty
+                      ? NetworkImage(profilePictureUrl)
+                      : const AssetImage('assets/images/default_avatar.png')
+                          as ImageProvider,
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  username,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  bio,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                const SizedBox(height: 16),
+                if (!isOwnProfile)
+                  ElevatedButton(
+                    onPressed: followLoading ? null : _toggleFollow,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.blue[900],
+                    ),
+                    child: Text(isFollowing ? 'Unfollow' : 'Follow'),
+                  ),
+                const SizedBox(height: 16),
+                _ProfileStat(
+                    title: 'Posts', count: postsCount, color: Colors.white),
+                const SizedBox(height: 8),
+                _ProfileStat(
+                    title: 'Followers',
+                    count: followersCount,
+                    color: Colors.white),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: isOwnProfile
+                  ? [_buildPostsTab(), _buildBucketListTab()]
+                  : [_buildPostsTab()],
+            ),
+          )
+        ],
+      ),
     );
   }
 
   Widget _buildPostsTab() {
-    return Column(
-      children: [
-        _buildProfileHeader(),
-        Expanded(
-          child: FutureBuilder<List<Post>>(
-            future: userPostsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError ||
-                  !snapshot.hasData ||
-                  snapshot.data!.isEmpty) {
-                return const Center(child: Text("No posts yet"));
-              }
-              final posts = snapshot.data!.reversed.toList();
-              return RefreshIndicator(
-                onRefresh: () async {
-                  setState(() => userPostsFuture =
-                      PostService().fetchUserPosts(widget.userId));
-                },
-                child: ListView.builder(
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    final post = posts[index];
-                    return PostCard(
-                      postId: post.id,
-                      username: username,
-                      description: post.caption,
-                      caption: post.caption,
-                      location: post.address,
-                      locationCoords: post.coordinates.isNotEmpty
-                          ? LatLng(post.coordinates[1], post.coordinates[0])
-                          : null,
-                      imageUrl: post.media,
-                      userId: widget.userId,
-                      onPin: () {},
-                      isPinned: false,
-                      timestamp: post.createdAt,
-                      isOwner: isOwnProfile,
-                      onDelete: () => _handleDeletePost(post.id),
-                      onEdit: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditPostScreen(
-                              post: post, // Pass the post model
-                              onUpdated:
-                                  _refreshPosts, // Callback to refresh after editing
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
+    return FutureBuilder<List<Post>>(
+      future: userPostsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("No posts yet"));
+        }
+        final posts = snapshot.data!.reversed.toList();
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() =>
+                userPostsFuture = PostService().fetchUserPosts(widget.userId));
+          },
+          child: ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return PostCard(
+                postId: post.id,
+                username: username,
+                description: post.caption,
+                caption: post.caption,
+                location: post.address,
+                locationCoords: post.coordinates.isNotEmpty
+                    ? LatLng(post.coordinates[1], post.coordinates[0])
+                    : null,
+                imageUrl: post.media,
+                onPin: () => togglePin(post.id),
+                userId: widget.userId,
+                isPinned: false,
+                isOwner: isOwnProfile,
+                timestamp: post.createdAt,
               );
             },
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -364,7 +355,6 @@ class _ProfilePageState extends State<ProfilePage>
 
     return Column(
       children: [
-        _buildProfileHeader(),
         Padding(
           padding: const EdgeInsets.all(16),
           child: DropdownButton<String>(
@@ -412,49 +402,32 @@ class _ProfilePageState extends State<ProfilePage>
       ],
     );
   }
-
-  Widget _buildProfileHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Text(username,
-              style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text(bio, style: const TextStyle(color: Colors.grey)),
-          const SizedBox(height: 16),
-          if (!isOwnProfile)
-            ElevatedButton(
-              onPressed: followLoading ? null : _toggleFollow,
-              child: Text(isFollowing ? 'Unfollow' : 'Follow'),
-            ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _ProfileStat(title: 'Posts', count: postsCount),
-              _ProfileStat(title: 'Followers', count: followersCount),
-            ],
-          )
-        ],
-      ),
-    );
-  }
 }
 
 class _ProfileStat extends StatelessWidget {
   final String title;
   final int count;
+  final Color color;
 
-  const _ProfileStat({required this.title, required this.count});
+  const _ProfileStat({
+    required this.title,
+    required this.count,
+    this.color = Colors.black,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('$count',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-        Text(title, style: const TextStyle(color: Colors.grey)),
+        Text(
+          '$count',
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: color),
+        ),
+        Text(
+          title,
+          style: TextStyle(color: color.withOpacity(0.7)),
+        ),
       ],
     );
   }
