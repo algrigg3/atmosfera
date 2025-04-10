@@ -307,8 +307,10 @@ class _ProfilePageState extends State<ProfilePage>
                   itemBuilder: (context, index) {
                     final post = posts[index];
                     return PostCard(
+                      postId: post.id,
                       username: username,
                       description: post.caption,
+                      caption: post.caption,
                       location: post.address,
                       locationCoords: post.coordinates.isNotEmpty
                           ? LatLng(post.coordinates[1], post.coordinates[0])
@@ -375,8 +377,10 @@ class _ProfilePageState extends State<ProfilePage>
                             itemBuilder: (context, index) {
                               final post = filtered[index];
                               return PostCard(
+                                postId: post.id,
                                 username: post.username,
                                 description: post.caption,
+                                caption: post.caption,
                                 location: post.address,
                                 locationCoords: post.coordinates.isNotEmpty
                                     ? LatLng(post.coordinates[1],

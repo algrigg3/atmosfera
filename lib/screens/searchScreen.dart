@@ -115,8 +115,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                 itemBuilder: (context, index) {
                                   final post = searchResults[index];
                                   return PostCard(
+                                    postId: post.id,
                                     username: post.username,
                                     description: post.caption,
+                                    caption: post.caption,
                                     location: post.address,
                                     locationCoords: post.coordinates.isNotEmpty
                                         ? LatLng(post.coordinates[1],
@@ -126,10 +128,12 @@ class _SearchScreenState extends State<SearchScreen> {
                                     userId: post.userId,
                                     isPinned: false,
                                     timestamp: post.createdAt,
-                                    isOwner: isOwnProfile,
+                                    isOwner: post.userId == widget.userId,
                                     onPin: () {},
+                                    onEdit: null,
+                                    onDelete: null,
                                     onLocationTap: () {
-                                      // Add navigation to location screen if needed
+                                      // Optional: Navigate to LocationDetailScreen
                                     },
                                   );
                                 },

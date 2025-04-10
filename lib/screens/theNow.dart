@@ -175,18 +175,19 @@ class _TheNowState extends State<TheNow> {
                       Post post = posts[index];
 
                       return PostCard(
+                        postId: post.id,
                         username: post.username,
                         description: post.caption,
+                        caption: post.caption,
                         location: post.address,
                         locationCoords: post.coordinates.isNotEmpty
                             ? LatLng(post.coordinates[1], post.coordinates[0])
                             : null,
                         imageUrl: post.media,
                         userId: post.userId,
-                        isOwner: isOwnProfile,
+                        isOwner: post.userId == widget.userId,
                         isPinned: pinnedPosts.contains(post.id),
-                        timestamp:
-                            post.createdAt, // 👈 Make sure this is a DateTime
+                        timestamp: post.createdAt,
                         onPin: () => togglePin(post.id),
                         onLocationTap: () {
                           if (post.coordinates.isNotEmpty) {
@@ -197,7 +198,9 @@ class _TheNowState extends State<TheNow> {
                                   username: post.username,
                                   locationName: post.address,
                                   locationCoords: LatLng(
-                                      post.coordinates[1], post.coordinates[0]),
+                                    post.coordinates[1],
+                                    post.coordinates[0],
+                                  ),
                                   address: post.address,
                                   userId: widget.userId,
                                 ),
