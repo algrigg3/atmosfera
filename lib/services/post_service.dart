@@ -147,4 +147,59 @@ class PostService {
       return [];
     }
   }
+
+  Future<bool> updatePost({
+    required String postId,
+    required String caption,
+    required String category,
+    File? imageFile,
+    Uint8List? webImage,
+  }) async {
+    try {
+      String? token = await storage.read(key: 'jwt_token');
+      if (token == null) {
+        print("No token found! User may be logged out.");
+        return false;
+      }
+
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('$baseUrl/$postId'),
+      );
+
+      request.headers['Authorization'] = 'Bearer $token';
+      request.fields['caption'] = caption;
+      request.fields['category'] = category;
+
+      if (kIsWeb && webImage != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'media',
+            webImage,
+            filename: 'updated_web_image.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          ),
+        );
+      } else if (!kIsWeb && imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'media',
+          imageFile.path,
+        ));
+      }
+
+      final response = await request.send();
+      final result = await http.Response.fromStream(response);
+
+      if (response.statusCode == 200) {
+        print("✅ Post updated successfully!");
+        return true;
+      } else {
+        print("❌ Failed to update post: ${result.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error updating post: $e");
+      return false;
+    }
+  }
 }

@@ -322,21 +322,36 @@ class _ProfilePageState extends State<ProfilePage>
             itemBuilder: (context, index) {
               final post = posts[index];
               return PostCard(
-                postId: post.id,
-                username: username,
-                description: post.caption,
-                caption: post.caption,
-                location: post.address,
-                locationCoords: post.coordinates.isNotEmpty
-                    ? LatLng(post.coordinates[1], post.coordinates[0])
-                    : null,
-                imageUrl: post.media,
-                onPin: () => togglePin(post.id),
-                userId: widget.userId,
-                isPinned: false,
-                isOwner: isOwnProfile,
-                timestamp: post.createdAt,
-              );
+                  postId: post.id,
+                  username: username,
+                  description: post.caption,
+                  caption: post.caption,
+                  location: post.address,
+                  locationCoords: post.coordinates.isNotEmpty
+                      ? LatLng(post.coordinates[1], post.coordinates[0])
+                      : null,
+                  imageUrl: post.media,
+                  onPin: () => togglePin(post.id),
+                  userId: widget.userId,
+                  isPinned: false,
+                  isOwner: isOwnProfile,
+                  timestamp: post.createdAt,
+                  onEdit: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => EditPostScreen(
+                          post: post, // ✅ this passes the entire Post object
+                          onUpdated: () {
+                            setState(() {
+                              userPostsFuture = PostService()
+                                  .fetchUserPosts(widget.userId); // refresh
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  });
             },
           ),
         );
