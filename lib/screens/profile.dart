@@ -395,36 +395,77 @@ class _ProfilePageState extends State<ProfilePage>
             itemBuilder: (context, index) {
               final post = posts[index];
               return PostCard(
-                  postId: post.id,
-                  username: username,
-                  description: post.caption,
-                  caption: post.caption,
-                  location: post.address,
-                  locationCoords: post.coordinates.isNotEmpty
-                      ? LatLng(post.coordinates[1], post.coordinates[0])
-                      : null,
-                  imageUrl: post.media,
-                  onPin: () => togglePin(post.id),
-                  userId: widget.userId,
-                  isPinned: false,
-                  isOwner: isOwnProfile,
-                  timestamp: post.createdAt,
-                  onEdit: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => EditPostScreen(
-                          post: post, // ✅ this passes the entire Post object
-                          onUpdated: () {
-                            setState(() {
-                              userPostsFuture = PostService()
-                                  .fetchUserPosts(widget.userId); // refresh
-                            });
-                          },
-                        ),
+                postId: post.id,
+                username: username,
+                description: post.caption,
+                caption: post.caption,
+                location: post.address,
+                locationCoords: post.coordinates.isNotEmpty
+                    ? LatLng(post.coordinates[1], post.coordinates[0])
+                    : null,
+                imageUrl: post.media,
+                onPin: () => togglePin(post.id),
+                userId: widget.userId,
+                isPinned: false,
+                isOwner: isOwnProfile,
+                timestamp: post.createdAt,
+                onEdit: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditPostScreen(
+                        post: post, // ✅ this passes the entire Post object
+                        onUpdated: () {
+                          setState(() {
+                            userPostsFuture = PostService()
+                                .fetchUserPosts(widget.userId); // refresh
+                          });
+                        },
                       ),
-                    );
-                  });
+                    ),
+                  );
+                },
+                onDelete: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text("Delete Post"),
+                      content:
+                          Text("Are you sure you want to delete this post?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                          child: Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          child: Text("Delete",
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed == true) {
+                    final success = await PostService().deletePost(post.id);
+                    if (success) {
+                      final refreshed =
+                          await PostService().fetchUserPosts(widget.userId);
+                      setState(() {
+                        userPostsFuture = PostService()
+                            .fetchUserPosts(widget.userId); // refresh
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Post deleted.")),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to delete post.")),
+                      );
+                    }
+                  }
+                },
+              );
             },
           ),
         );

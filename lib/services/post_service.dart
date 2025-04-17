@@ -148,6 +148,36 @@ class PostService {
     }
   }
 
+  Future<bool> deletePost(String postId) async {
+    try {
+      String? token = await storage.read(key: 'jwt_token');
+      if (token == null) {
+        print("No token found! User may be logged out.");
+        return false;
+      }
+
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$postId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print("🗑️ Delete Response Code: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        print("✅ Post deleted successfully");
+        return true;
+      } else {
+        print("❌ Failed to delete post: ${response.body}");
+        return false;
+      }
+    } catch (error) {
+      print("🚨 Error deleting post: $error");
+      return false;
+    }
+  }
+
   Future<bool> updatePost({
     required String postId,
     required String caption,
