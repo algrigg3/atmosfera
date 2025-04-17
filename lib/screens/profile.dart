@@ -2,8 +2,13 @@ import 'dart:convert';
 import 'package:atmosfera/screens/editpostScreen.dart';
 import 'package:atmosfera/services/auth_service.dart';
 import 'package:atmosfera/services/constants.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http_parser/http_parser.dart'; // ADD THIS at the top
 import 'package:http/http.dart' as http;
 import '../widgets/post_card.dart';
 import 'theNow.dart';
@@ -64,6 +69,70 @@ class _ProfilePageState extends State<ProfilePage>
       userPostsFuture = PostService().fetchUserPosts(widget.userId);
       fetchPinnedPosts();
     });
+  }
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _changeProfilePicture() async {
+    try {
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        final token = await AuthService().getToken();
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              'http://$BASE_URL/api/auth/upload-profile-picture'), // make sure 'auth' is correct
+        );
+        request.headers['Authorization'] = 'Bearer $token';
+
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          final mimeType = pickedFile.mimeType?.split('/');
+          final contentType = mimeType != null && mimeType.length == 2
+              ? MediaType(mimeType[0], mimeType[1])
+              : MediaType('image', 'jpeg');
+
+          request.files.add(http.MultipartFile.fromBytes(
+            'image',
+            bytes,
+            filename: pickedFile.name,
+            contentType: contentType,
+          ));
+        } else {
+          request.files.add(await http.MultipartFile.fromPath(
+            'image',
+            pickedFile.path,
+          ));
+        }
+
+        print("📤 Sending profile picture upload...");
+        final response = await request.send();
+        print("📥 Response status: ${response.statusCode}");
+
+        final respStr = await response.stream.bytesToString();
+        print("📦 Response body: $respStr");
+
+        if (response.statusCode == 200) {
+          print('✅ Profile picture uploaded');
+          _loadUserProfile();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profile picture updated!")),
+          );
+        } else {
+          print('❌ Failed to upload profile picture');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Upload failed\n$respStr")),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error picking/uploading profile picture: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 
   Future<void> _checkFollowingStatus() async {
@@ -245,12 +314,15 @@ class _ProfilePageState extends State<ProfilePage>
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: profilePictureUrl.isNotEmpty
-                      ? NetworkImage(profilePictureUrl)
-                      : const AssetImage('assets/images/default_avatar.png')
-                          as ImageProvider,
+                GestureDetector(
+                  onTap: isOwnProfile ? _changeProfilePicture : null,
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundImage: profilePictureUrl.isNotEmpty
+                        ? NetworkImage(profilePictureUrl)
+                        : const AssetImage('images/Atmosfera (1).png')
+                            as ImageProvider,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
