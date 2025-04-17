@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:atmosfera/screens/editpostScreen.dart';
 import 'package:atmosfera/services/auth_service.dart';
 import 'package:atmosfera/services/constants.dart';
+import 'package:atmosfera/widgets/bucketlist_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -433,12 +434,11 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildBucketListTab() {
     final filtered = selectedCategory == 'All'
-        ? pinnedPosts.reversed.toList()
-        : pinnedPosts
-            .where((p) => p.category == selectedCategory)
-            .toList()
-            .reversed
-            .toList();
+        ? List.from(pinnedPosts) // Keep original order of all pinned
+        : pinnedPosts.where((p) => p.category == selectedCategory).toList();
+
+    // Sort by pinned time descending — assuming 'createdAt' is DateTime
+    filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return Column(
       children: [
@@ -465,22 +465,17 @@ class _ProfilePageState extends State<ProfilePage>
                             itemCount: filtered.length,
                             itemBuilder: (context, index) {
                               final post = filtered[index];
-                              return PostCard(
-                                postId: post.id,
-                                username: post.username,
-                                description: post.caption,
-                                caption: post.caption,
-                                location: post.address,
-                                locationCoords: post.coordinates.isNotEmpty
-                                    ? LatLng(post.coordinates[1],
-                                        post.coordinates[0])
-                                    : null,
-                                imageUrl: post.media,
-                                userId: widget.userId,
-                                onPin: () => togglePin(post.id),
-                                isPinned: true,
-                                timestamp: post.createdAt,
-                                isOwner: widget.userId == post.userId,
+                              return BucketListCard(
+                                post: post,
+                                onTapSeeTheNow: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            TheNow(userId: currentUserId)),
+                                  );
+                                },
+                                onUnpin: () => togglePin(post.id),
                               );
                             },
                           ),
