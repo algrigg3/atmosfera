@@ -85,7 +85,7 @@ class _SignUpPageState extends State<SignUpPage> {
       body: SafeArea(
         child: Center(
           child: Container(
-            width: 320,
+            width: 380,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.blue.shade900, width: 3),
@@ -221,11 +221,12 @@ Widget buildInputField({
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
             validator: validator,
+            textAlignVertical: TextAlignVertical.center,
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: placeholder,
               hintStyle: TextStyle(color: Colors.white70),
-              suffixIcon: suffixIcon,
+              suffixIcon: suffixIcon ?? SizedBox(width: 0, height: 0),
               contentPadding: EdgeInsets.only(bottom: 8),
             ),
             style: TextStyle(color: Colors.white),
