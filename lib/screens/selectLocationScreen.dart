@@ -144,23 +144,23 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
           ? Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    focusNode: _searchFocusNode,
-                    controller: _searchController,
-                    onSubmitted: _searchPlace,
-                    decoration: InputDecoration(
-                      hintText: 'Search for a place',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      fillColor: Colors.white,
-                      filled: true,
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: TextField(
+                //     focusNode: _searchFocusNode,
+                //     controller: _searchController,
+                //     onSubmitted: _searchPlace,
+                //     decoration: InputDecoration(
+                //       hintText: 'Search for a place',
+                //       prefixIcon: Icon(Icons.search),
+                //       border: OutlineInputBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //       fillColor: Colors.white,
+                //       filled: true,
+                //     ),
+                //   ),
+                // ),
                 Expanded(
                   child: GoogleMap(
                     initialCameraPosition: initialCameraPosition!,
