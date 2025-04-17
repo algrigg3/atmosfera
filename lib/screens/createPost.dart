@@ -228,85 +228,106 @@ class _CreatePostState extends State<CreatePost> {
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: InputDecoration(
-                      hintText: "Select Category",
-                      filled: true,
-                      fillColor: Colors.grey[300],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    items: _categories.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: (value) =>
-                        setState(() => _selectedCategory = value),
-                  ),
-                  SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: _selectLocation,
-                    child: Row(
+                  // LEFT SIDE: Form controls
+                  Expanded(
+                    flex: 4, // You can tweak this ratio
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Icon(Icons.location_on, color: Colors.blue),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            locationName,
-                            style: TextStyle(color: Colors.blue, fontSize: 16),
-                            overflow: TextOverflow.ellipsis,
+                        DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          decoration: InputDecoration(
+                            hintText: "Select Category",
+                            filled: true,
+                            fillColor: Colors.grey[300],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
+                          items: _categories.map((category) {
+                            return DropdownMenuItem(
+                              value: category,
+                              child: Text(category),
+                            );
+                          }).toList(),
+                          onChanged: (value) =>
+                              setState(() => _selectedCategory = value),
+                        ),
+                        SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: _selectLocation,
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.blue),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  locationName,
+                                  style: TextStyle(
+                                      color: Colors.blue, fontSize: 16),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (selectedCoords != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: ElevatedButton(
+                              onPressed: _viewLocationDetails,
+                              child: Text("View on Map"),
+                            ),
+                          ),
+                        SizedBox(height: 16),
+                        TextField(
+                          controller: _captionController,
+                          maxLines: 2,
+                          decoration: InputDecoration(
+                            hintText: "Add a caption",
+                            filled: true,
+                            fillColor: Colors.grey[300],
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: isPosting ? null : _submitPost,
+                          child: isPosting
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text('Post'),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 10),
-                  if (selectedCoords != null)
-                    ElevatedButton(
-                      onPressed: _viewLocationDetails,
-                      child: Text("View on Map"),
-                    ),
-                  SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        border: Border.all(color: Colors.blue, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildImagePreview(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _captionController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      hintText: "Add a caption",
-                      filled: true,
-                      fillColor: Colors.grey[300],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+
+                  SizedBox(width: 30), // spacing between columns
+
+                  // RIGHT SIDE: Image preview
+                  Expanded(
+                    flex: 3,
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Center(
+                        child: Container(
+                          height: 350,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            border: Border.all(color: Colors.blue, width: 2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: _buildImagePreview(),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: isPosting ? null : _submitPost,
-                    child: isPosting
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text('Post'),
                   ),
                 ],
               ),
