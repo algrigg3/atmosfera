@@ -72,6 +72,7 @@ flutter:
   assets:
     - images/postCard1.jpg
     - images/Atmosfera (1).png
+    - images/Atmosfera (3).png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
