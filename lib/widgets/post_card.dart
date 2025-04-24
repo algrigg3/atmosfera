@@ -203,7 +203,7 @@ class _PostCardState extends State<PostCard> {
         ),
       );
     } else {
-      return _buildPlaceholderImage();
+      return SizedBox.shrink();
     }
   }
 
