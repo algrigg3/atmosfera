@@ -57,7 +57,12 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
 }
 
 class FloatingPin extends StatefulWidget {
-  const FloatingPin({super.key});
+  final Color color;
+
+  const FloatingPin({
+    super.key,
+    this.color = Colors.white, // default to white
+  });
 
   @override
   State<FloatingPin> createState() => _FloatingPinState();
@@ -110,8 +115,11 @@ class _FloatingPinState extends State<FloatingPin>
         return Positioned(
           left: left,
           top: top + _controller.value * 30, // drop down 30px
-          child: Icon(Icons.location_pin,
-              color: Colors.white.withOpacity(0.2), size: 24),
+          child: Icon(
+            Icons.location_pin,
+            color: widget.color.withOpacity(0.2), // use passed color
+            size: 24,
+          ),
         );
       },
     );

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:atmosfera/screens/login.dart';
 import 'package:atmosfera/services/auth_service.dart';
 
+import '../widgets/animated_background.dart';
+
 class SignUpPage extends StatefulWidget {
   @override
   _SignUpPageState createState() => _SignUpPageState();
@@ -75,116 +77,127 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: Container(
-            width: 380,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue.shade900, width: 3),
-              borderRadius: BorderRadius.circular(8),
+    return Stack(
+      children: [
+        ...List.generate(30, (_) => const FloatingPin(color: Colors.blue)),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
             ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildInputField(
-                    label: "Username:",
-                    placeholder: "Enter your username",
-                    controller: _usernameController,
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Username is required'
-                        : null,
-                  ),
-                  SizedBox(height: 10),
-                  buildInputField(
-                    label: "Email:",
-                    placeholder: "Enter your email",
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Email is required';
-                      final emailRegex =
-                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$');
-                      return emailRegex.hasMatch(value)
-                          ? null
-                          : 'Enter a valid email';
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  buildInputField(
-                    label: "Password:",
-                    placeholder: "Enter your password",
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.white,
+          ),
+          body: SafeArea(
+            child: Center(
+              child: Container(
+                width: 380,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.blue.shade900, width: 3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildInputField(
+                        label: "Username:",
+                        placeholder: "Enter your username",
+                        controller: _usernameController,
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Username is required'
+                            : null,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    validator: (value) => value == null || value.length < 6
-                        ? 'Password must be at least 6 characters'
-                        : null,
-                  ),
-                  SizedBox(height: 10),
-                  buildInputField(
-                    label: "Phone:",
-                    placeholder: "XXX-XXX-XXXX",
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Phone number is required'
-                        : null,
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _signUpUser,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      SizedBox(height: 10),
+                      buildInputField(
+                        label: "Email:",
+                        placeholder: "Enter your email",
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return 'Email is required';
+                          final emailRegex =
+                              RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$');
+                          return emailRegex.hasMatch(value)
+                              ? null
+                              : 'Enter a valid email';
+                        },
                       ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            'Sign Up',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                      SizedBox(height: 10),
+                      buildInputField(
+                        label: "Password:",
+                        placeholder: "Enter your password",
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white,
                           ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        validator: (value) => value == null || value.length < 6
+                            ? 'Password must be at least 6 characters'
+                            : null,
+                      ),
+                      SizedBox(height: 10),
+                      buildInputField(
+                        label: "Phone:",
+                        placeholder: "XXX-XXX-XXXX",
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Phone number is required'
+                            : null,
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: isLoading ? null : _signUpUser,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[900],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
+                        ),
+                        child: isLoading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
+                              ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

@@ -4,6 +4,8 @@ import 'package:atmosfera/services/auth_service.dart';
 import 'package:atmosfera/services/socket_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../widgets/animated_background.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -78,89 +80,99 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: Container(
-            width: 380,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue.shade900, width: 3),
-              borderRadius: BorderRadius.circular(8),
+    return Stack(
+      children: [
+        ...List.generate(30, (_) => const FloatingPin(color: Colors.blue)),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context),
             ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  buildInputField(
-                    label: "Username:",
-                    placeholder: "Enter your username",
-                    controller: _usernameController,
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Username required'
-                        : null,
-                  ),
-                  const SizedBox(height: 10),
-                  buildInputField(
-                    label: "Password:",
-                    placeholder: "Enter your password",
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.white,
+          ),
+          body: SafeArea(
+            child: Center(
+              child: Container(
+                width: 380,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.blue.shade900, width: 3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      buildInputField(
+                        label: "Username:",
+                        placeholder: "Enter your username",
+                        controller: _usernameController,
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Username required'
+                            : null,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Password required'
-                        : null,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _loginUser,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[900],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15),
-                    ),
-                    child: isLoading
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            'Login',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                      const SizedBox(height: 10),
+                      buildInputField(
+                        label: "Password:",
+                        placeholder: "Enter your password",
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white,
                           ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        validator: (value) => value == null || value.isEmpty
+                            ? 'Password required'
+                            : null,
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: isLoading ? null : _loginUser,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[900],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Login',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
+                              ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

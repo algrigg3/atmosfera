@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
 //import 'package:flutter_google_places/flutter_google_places.dart';
 
-const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY'; // 🔐 Replace this
+const String googleMapsApiKey = 'YOUR_GOOGLE_MAPS_API_KEY'; //
 
 class SelectLocationScreen extends StatefulWidget {
   @override

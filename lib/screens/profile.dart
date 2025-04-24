@@ -6,10 +6,8 @@ import 'package:atmosfera/widgets/bucketlist_card.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http_parser/http_parser.dart'; // ADD THIS at the top
+import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/post_card.dart';
 import 'theNow.dart';
@@ -108,21 +106,21 @@ class _ProfilePageState extends State<ProfilePage>
           ));
         }
 
-        print("📤 Sending profile picture upload...");
+        print("Sending profile picture upload...");
         final response = await request.send();
-        print("📥 Response status: ${response.statusCode}");
+        print("Response status: ${response.statusCode}");
 
         final respStr = await response.stream.bytesToString();
-        print("📦 Response body: $respStr");
+        print("Response body: $respStr");
 
         if (response.statusCode == 200) {
-          print('✅ Profile picture uploaded');
+          print('Profile picture uploaded');
           _loadUserProfile();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Profile picture updated!")),
           );
         } else {
-          print('❌ Failed to upload profile picture');
+          print('Failed to upload profile picture');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Upload failed\n$respStr")),
           );
@@ -414,7 +412,7 @@ class _ProfilePageState extends State<ProfilePage>
                     context,
                     MaterialPageRoute(
                       builder: (_) => EditPostScreen(
-                        post: post, // ✅ this passes the entire Post object
+                        post: post,
                         onUpdated: () {
                           setState(() {
                             userPostsFuture = PostService()
