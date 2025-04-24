@@ -10,6 +10,7 @@ import '../widgets/tabBar.dart';
 import '../widgets/post_card.dart';
 import '../services/post_service.dart';
 import '../models/post.dart';
+import 'editpostScreen.dart';
 
 class TheNow extends StatefulWidget {
   final String userId;
@@ -83,8 +84,8 @@ class _TheNowState extends State<TheNow> {
           : await http.post(Uri.parse(url),
               headers: headers, body: jsonEncode({'category': 'general'}));
 
-      print("🔄 Response Status Code: ${response.statusCode}");
-      print("🔄 Response Body: ${response.body}");
+      print("Response Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         // Re-fetch pinned posts to sync state
@@ -206,6 +207,45 @@ class _TheNowState extends State<TheNow> {
                                 ),
                               ),
                             );
+                          }
+                        },
+                        onEdit: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditPostScreen(
+                                post: post,
+                                onUpdated: () {},
+                              ),
+                            ),
+                          ).then((_) => _refreshPosts());
+                        },
+                        onDelete: () async {
+                          bool? confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Delete Post"),
+                              content: const Text(
+                                  "Are you sure you want to delete this post?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text("Delete",
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm == true) {
+                            await postService.deletePost(
+                                post.id); // make sure this method exists
+                            _refreshPosts();
                           }
                         },
                       );

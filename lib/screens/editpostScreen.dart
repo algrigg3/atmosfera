@@ -1,9 +1,6 @@
 import 'package:atmosfera/models/post.dart';
-import 'package:atmosfera/services/auth_service.dart';
-import 'package:atmosfera/services/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' show File;
 import 'package:image_picker_web/image_picker_web.dart';
