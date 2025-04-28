@@ -8,7 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../services/post_service.dart';
-import '../services/location_service.dart'; // ✅ NEW import
+import '../services/location_service.dart';
 import '../widgets/tabBar.dart';
 import 'locationDetailScreen.dart';
 import 'selectLocationScreen.dart';

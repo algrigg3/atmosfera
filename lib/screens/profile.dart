@@ -81,8 +81,7 @@ class _ProfilePageState extends State<ProfilePage>
         final token = await AuthService().getToken();
         final request = http.MultipartRequest(
           'POST',
-          Uri.parse(
-              'http://$BASE_URL/api/auth/upload-profile-picture'), // make sure 'auth' is correct
+          Uri.parse('http://$BASE_URL/api/auth/upload-profile-picture'),
         );
         request.headers['Authorization'] = 'Bearer $token';
 

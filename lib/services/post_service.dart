@@ -114,7 +114,7 @@ class PostService {
     }
   }
 
-  // Fetch posts for a specific user
+  //Fetch posts for a specific user
   Future<List<Post>> fetchUserPosts(String userId) async {
     try {
       String? token = await storage.read(key: 'jwt_token');
@@ -221,10 +221,10 @@ class PostService {
       final result = await http.Response.fromStream(response);
 
       if (response.statusCode == 200) {
-        print("✅ Post updated successfully!");
+        print("Post updated successfully!");
         return true;
       } else {
-        print("❌ Failed to update post: ${result.body}");
+        print("Failed to update post: ${result.body}");
         return false;
       }
     } catch (e) {

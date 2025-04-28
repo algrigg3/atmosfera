@@ -5,9 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   final String baseUrl = 'http://$BASE_URL/api/auth';
-  final storage = const FlutterSecureStorage(); // Secure JWT storage
+  final storage = const FlutterSecureStorage(); //Secure JWT storage
 
-  // User Registration
+  //User Registration
   Future<Map<String, dynamic>> registerUser(
       String username, String email, String password, String phoneNumber,
       {String profilePicture = '', String bio = ''}) async {
@@ -40,7 +40,7 @@ class AuthService {
     }
   }
 
-  // User Login
+  //User Login
   Future<Map<String, dynamic>> loginUser(
       String username, String password) async {
     try {
@@ -54,9 +54,9 @@ class AuthService {
 
       if (response.statusCode == 200) {
         await storage.write(
-            key: 'jwt_token', value: data['token']); // Save JWT token
+            key: 'jwt_token', value: data['token']); //Save JWT token
         await storage.write(
-            key: 'user_id', value: data['userId']); // Save user ID
+            key: 'user_id', value: data['userId']); //Save user ID
         print(' Login successful: UserID: ${data['userId']}');
         return data;
       } else {
@@ -69,12 +69,12 @@ class AuthService {
     }
   }
 
-  // Retrieve stored token
+  //Retrieve stored token
   Future<String?> getToken() async {
     return await storage.read(key: 'jwt_token');
   }
 
-  // Retrieve stored user ID
+  //Retrieve stored user ID
   Future<String?> getUserId() async {
     return await storage.read(key: 'user_id');
   }
@@ -82,14 +82,14 @@ class AuthService {
   Future<void> logout() async {
     try {
       print(" Logging out: Attempting to retrieve token...");
-      String? token = await getToken(); // Debugging check
+      String? token = await getToken(); //Debugging check
 
       if (token == null) {
         print(" No token found! The user might already be logged out.");
       } else {
         print(" Retrieved Token Before Logout: $token");
 
-        //  Send logout request to backend
+        //Send logout request to backend
         final response = await http.post(
           Uri.parse('$baseUrl/logout'),
           headers: {'Authorization': 'Bearer $token'},
@@ -102,11 +102,11 @@ class AuthService {
         }
       }
 
-      //  Ensure token is deleted
+      //Ensure token is deleted
       await storage.delete(key: 'jwt_token');
       await storage.delete(key: 'user_id');
 
-      String? checkToken = await getToken(); // Check if token is really deleted
+      String? checkToken = await getToken(); //Check if token is really deleted
       print(" Token After Logout: $checkToken (Should be null)");
 
       print(" User logged out successfully.");
@@ -115,7 +115,7 @@ class AuthService {
     }
   }
 
-  // Fetch user profile
+  //Fetch user profile
   Future<Map<String, dynamic>?> fetchUserProfile() async {
     String? token = await getToken();
     String? userId = await getUserId();
@@ -147,7 +147,7 @@ class AuthService {
     }
 
     final response = await http.put(
-      Uri.parse('$baseUrl/update-profile'), //  Corrected URL
+      Uri.parse('$baseUrl/update-profile'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ class AuthService {
     print(" New Password: $newPassword");
 
     final response = await http.put(
-      Uri.parse('$baseUrl/update-password'), //  Corrected URL
+      Uri.parse('$baseUrl/update-password'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',

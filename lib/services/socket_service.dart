@@ -18,12 +18,12 @@ class SocketService {
     socket!.connect();
 
     socket!.on('connect', (_) {
-      print('✅ Connected to socket');
-      socket!.emit('join', userId); // THIS MUST RUN AFTER 'connect'
+      print('Connected to socket');
+      socket!.emit('join', userId);
     });
 
     socket!.on('disconnect', (_) {
-      print('❌ Disconnected from socket');
+      print('Disconnected from socket');
     });
   }
 

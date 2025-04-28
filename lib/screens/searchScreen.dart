@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     onEdit: null,
                                     onDelete: null,
                                     onLocationTap: () {
-                                      // Optional: Navigate to LocationDetailScreen
+                                      //Navigate to LocationDetailScreen
                                     },
                                   );
                                 },

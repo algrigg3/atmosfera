@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../services/socket_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../widgets/tabBar.dart'; // Import the CustomTabBar
+import '../widgets/tabBar.dart';
 
 class NotificationPage extends StatefulWidget {
   final String userId;
@@ -21,7 +21,7 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     _fetchNotifications();
-    _listenToSocket(); // working now
+    _listenToSocket();
   }
 
   void _fetchNotifications() async {

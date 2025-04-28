@@ -61,7 +61,7 @@ class FloatingPin extends StatefulWidget {
 
   const FloatingPin({
     super.key,
-    this.color = Colors.white, // default to white
+    this.color = Colors.white,
   });
 
   @override
@@ -114,10 +114,10 @@ class _FloatingPinState extends State<FloatingPin>
       builder: (_, __) {
         return Positioned(
           left: left,
-          top: top + _controller.value * 30, // drop down 30px
+          top: top + _controller.value * 30,
           child: Icon(
             Icons.location_pin,
-            color: widget.color.withOpacity(0.2), // use passed color
+            color: widget.color.withOpacity(0.2),
             size: 24,
           ),
         );

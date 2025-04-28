@@ -24,17 +24,17 @@ class TheNow extends StatefulWidget {
 class _TheNowState extends State<TheNow> {
   final PostService postService = PostService();
   late Future<List<Post>> postsFuture;
-  Set<String> pinnedPosts = {}; //  Track pinned post IDs
+  Set<String> pinnedPosts = {}; //Track pinned post IDs
   bool isOwnProfile = false;
 
   @override
   void initState() {
     super.initState();
     postsFuture = postService.fetchPosts();
-    fetchPinnedPosts(); // Fetch pinned posts when the screen loads
+    fetchPinnedPosts(); //Fetch pinned posts when the screen loads
   }
 
-  // Fetch pinned posts from the backend
+  //Fetch pinned posts from the backend
   Future<void> fetchPinnedPosts() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('jwt_token');
@@ -160,7 +160,7 @@ class _TheNowState extends State<TheNow> {
                 }
 
                 if (snapshot.hasError) {
-                  return Center(child: Text(" Error loading posts"));
+                  return Center(child: Text("Error loading posts"));
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {

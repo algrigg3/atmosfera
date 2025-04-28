@@ -65,15 +65,15 @@ class _PostCardState extends State<PostCard> {
     final content = _commentController.text.trim();
 
     if (content.isEmpty) {
-      print('❌ Empty comment');
+      print('Empty comment');
       return;
     }
 
-    final authService = AuthService(); // ✅ use the service
+    final authService = AuthService(); //use the service
     final token = await authService.getToken();
 
     if (token == null) {
-      print('❌ No token found');
+      print('No token found');
       return;
     }
 
@@ -90,19 +90,19 @@ class _PostCardState extends State<PostCard> {
         }),
       );
 
-      print('📤 Add Comment Response: ${res.statusCode}');
-      print('📤 Body: ${res.body}');
+      print('Add Comment Response: ${res.statusCode}');
+      print('Body: ${res.body}');
 
       if (res.statusCode == 201) {
         _commentController.clear();
-        fetchComments(); // 👈 refresh comments
+        fetchComments(); //refresh comments
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add comment.')),
         );
       }
     } catch (e) {
-      print('🚨 Error adding comment: $e');
+      print('Error adding comment: $e');
     }
   }
 

@@ -4,14 +4,14 @@ class PostDetailPage extends StatelessWidget {
   final String title;
   final String username;
   final String imagePath;
-  final String description; // Optional for post description
+  final String description;
 
   const PostDetailPage({
     Key? key,
     required this.title,
     required this.username,
     required this.imagePath,
-    this.description = '', // Optional
+    this.description = '',
   }) : super(key: key);
 
   @override

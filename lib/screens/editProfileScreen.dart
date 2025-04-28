@@ -36,8 +36,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _newPasswordController = TextEditingController();
 
   bool isUpdating = false;
-  final String apiUrl =
-      'http://$BASE_URL/api/auth/update-profile'; //  Define API URL
+  final String apiUrl = 'http://$BASE_URL/api/auth/update-profile';
 
   @override
   void initState() {
@@ -50,7 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _handleLogout() async {
     AuthService authService = AuthService();
-    await authService.logout(); //  Call the logout function
+    await authService.logout(); //Call the logout function
 
     print(" Navigating to home screen...");
 
@@ -160,7 +159,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              //  **Username Field**
+              //Username Field
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
@@ -168,7 +167,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
-              // **Bio Field**
+              //Bio Field
               TextField(
                 controller: _bioController,
                 decoration: InputDecoration(
@@ -176,7 +175,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
-              //  **Email Field**
+              //Email Field
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
@@ -184,7 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     labelStyle: TextStyle(color: Colors.blue[900])),
               ),
 
-              //  **Phone Number Field**
+              //Phone Number Field
               TextField(
                 controller: _phoneController,
                 decoration: InputDecoration(
@@ -194,7 +193,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 20),
 
-              //  **Save Profile Button**
+              //Save Profile Button
               ElevatedButton(
                 onPressed: isUpdating ? null : _updateProfile,
                 child: isUpdating
@@ -206,13 +205,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const Divider(),
               const SizedBox(height: 20),
 
-              //  **Password Update Section**
+              //Password Update Section
               const Text(
                 "Update Password",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
 
-              //  **Current Password Field**
+              //Current Password Field
               TextField(
                 controller: _currentPasswordController,
                 decoration:
@@ -220,7 +219,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 obscureText: true,
               ),
 
-              //  **New Password Field**
+              //New Password Field
               TextField(
                 controller: _newPasswordController,
                 decoration: const InputDecoration(labelText: "New Password"),
@@ -229,7 +228,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 20),
 
-              //  **Update Password Button**
+              //Update Password Button
               ElevatedButton(
                 onPressed: isUpdating ? null : _updatePassword,
                 child: isUpdating
@@ -239,7 +238,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               const SizedBox(height: 20),
 
-              //  Logout Button
+              //Logout Button
               ElevatedButton(
                 onPressed: _handleLogout,
                 style:
