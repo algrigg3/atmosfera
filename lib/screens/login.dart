@@ -97,76 +97,91 @@ class _LoginPageState extends State<LoginPage> {
             child: Center(
               child: Container(
                 width: 380,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.blue.shade900, width: 3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      buildInputField(
-                        label: "Username:",
-                        placeholder: "Enter your username",
-                        controller: _usernameController,
-                        validator: (value) => value == null || value.isEmpty
-                            ? 'Username required'
-                            : null,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AnimatedBackground(),
                       ),
-                      const SizedBox(height: 10),
-                      buildInputField(
-                        label: "Password:",
-                        placeholder: "Enter your password",
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                        validator: (value) => value == null || value.isEmpty
-                            ? 'Password required'
-                            : null,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.5),
+                        border:
+                            Border.all(color: Colors.blue.shade900, width: 3),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: isLoading ? null : _loginUser,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[900],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 15),
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            buildInputField(
+                              label: "Username:",
+                              placeholder: "Enter your username",
+                              controller: _usernameController,
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? 'Username required'
+                                      : null,
+                            ),
+                            const SizedBox(height: 10),
+                            buildInputField(
+                              label: "Password:",
+                              placeholder: "Enter your password",
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
                                   color: Colors.white,
-                                  strokeWidth: 2,
                                 ),
-                              )
-                            : const Text(
-                                'Login',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.white),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
                               ),
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                      ? 'Password required'
+                                      : null,
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: isLoading ? null : _loginUser,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[900],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 15),
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Login',
+                                      style: TextStyle(
+                                          fontSize: 16, color: Colors.white),
+                                    ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -190,14 +205,14 @@ Widget buildInputField({
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 16),
     decoration: BoxDecoration(
-      color: Colors.cyanAccent[700],
+      color: Colors.white.withOpacity(0.5),
       borderRadius: BorderRadius.circular(10),
     ),
     child: Row(
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Colors.blue[900], fontSize: 16),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -210,11 +225,12 @@ Widget buildInputField({
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: placeholder,
-              hintStyle: const TextStyle(color: Colors.white70),
+              hintStyle:
+                  TextStyle(color: const Color.fromARGB(151, 13, 72, 161)),
               suffixIcon: suffixIcon ?? SizedBox(width: 0, height: 0),
               contentPadding: const EdgeInsets.only(bottom: 8),
             ),
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.blue[900]),
           ),
         ),
       ],
