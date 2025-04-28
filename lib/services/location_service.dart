@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class LocationService {
   static const String _apiKey =
-      'AIzaSyDJAJbvBBkiUSglgMQlStEUHvBQ1nwMfGQ'; // 🔐 Replace this
+      'AIzaSyDJAJbvBBkiUSglgMQlStEUHvBQ1nwMfGQ'; // Replace this
 
   static Future<Map<String, String>> reverseGeocode(LatLng coords) async {
     final url = Uri.parse(

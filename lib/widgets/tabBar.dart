@@ -46,12 +46,12 @@ class _CustomTabBarState extends State<CustomTabBar> {
           const SizedBox(height: 40),
           Padding(
             padding:
-                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 12.0),
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.blue[900],
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -62,9 +62,9 @@ class _CustomTabBarState extends State<CustomTabBar> {
                 ],
               ),
               child: Image.asset(
-                'images/Atmosfera (1).png',
+                'images/Atmosfera (3).png',
                 fit: BoxFit.contain,
-                height: 60,
+                height: 80,
               ),
             ),
           ),

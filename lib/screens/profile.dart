@@ -300,6 +300,9 @@ class _ProfilePageState extends State<ProfilePage>
             : [],
         bottom: TabBar(
           controller: _tabController,
+          labelColor: Colors.blue, // Active tab text color
+          unselectedLabelColor: Colors.blue.shade200, // Inactive tab text color
+          indicatorColor: Colors.blue,
           tabs: isOwnProfile
               ? const [Tab(text: 'Posts'), Tab(text: 'Bucket List')]
               : const [Tab(text: 'Posts')],
