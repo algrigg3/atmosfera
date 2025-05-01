@@ -88,9 +88,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Enter search...',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            hintText: searchType == 'Username'
+                                ? 'Enter a username (e.g. john_doe)'
+                                : searchType == 'Location'
+                                    ? 'Enter a location (e.g. Chicago)'
+                                    : 'Enter a category (e.g. Restaurants, Bars)',
+                            border: const OutlineInputBorder(),
                             isDense: true,
                           ),
                           onChanged: (val) => searchQuery = val,

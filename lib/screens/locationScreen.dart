@@ -146,21 +146,6 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            // TODO: Pin logic
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[900],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30, vertical: 12),
-                          ),
-                          child: const Text('Pin',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
