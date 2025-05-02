@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationService {
-  static const String _apiKey = 'AIzaSyDJAJbvBBkiUSglgMQlStEUHvBQ1nwMfGQ';
+  static final String _apiKey = dotenv.env['GOOGLE_API_KEY']!;
 
   static Future<Map<String, String>> reverseGeocode(LatLng coords) async {
     final url = Uri.parse(
