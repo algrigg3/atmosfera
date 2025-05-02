@@ -210,7 +210,7 @@ class _CreatePostState extends State<CreatePost> {
         _imageFile = null;
         _webImage = null;
         _selectedCategory = null;
-        _getUserLocation(); // reset location
+        _getUserLocation(); //reset location
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -233,7 +233,7 @@ class _CreatePostState extends State<CreatePost> {
                 children: [
                   // LEFT SIDE: Form controls
                   Expanded(
-                    flex: 4, // You can tweak this ratio
+                    flex: 4,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -308,7 +308,7 @@ class _CreatePostState extends State<CreatePost> {
                     ),
                   ),
 
-                  SizedBox(width: 30), // spacing between columns
+                  SizedBox(width: 30),
 
                   // RIGHT SIDE: Image preview
                   Expanded(

@@ -85,8 +85,7 @@ class _LocationDetailScreenState extends State<LocationDetailScreen> {
                   // Google Map
                   Center(
                     child: SizedBox(
-                      width:
-                          800, // Limit width for better centering on big screens
+                      width: 800,
                       height: 300,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),

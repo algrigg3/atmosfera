@@ -143,6 +143,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
           ? Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                // commented out for now having issues:
                 // Padding(
                 //   padding: const EdgeInsets.all(8.0),
                 //   child: TextField(

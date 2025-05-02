@@ -26,7 +26,7 @@ class PostService {
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      print("🔍 Raw Response Body: ${response.body}");
+      print("Raw Response Body: ${response.body}");
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
@@ -163,17 +163,17 @@ class PostService {
         },
       );
 
-      print("🗑️ Delete Response Code: ${response.statusCode}");
+      print("Delete Response Code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
-        print("✅ Post deleted successfully");
+        print("Post deleted successfully");
         return true;
       } else {
-        print("❌ Failed to delete post: ${response.body}");
+        print("Failed to delete post: ${response.body}");
         return false;
       }
     } catch (error) {
-      print("🚨 Error deleting post: $error");
+      print("Error deleting post: $error");
       return false;
     }
   }

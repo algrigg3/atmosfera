@@ -58,7 +58,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  ///  **Update Profile Information**
+  //Update Profile Information
   Future<void> _updateProfile() async {
     if (_usernameController.text.isEmpty ||
         _emailController.text.isEmpty ||

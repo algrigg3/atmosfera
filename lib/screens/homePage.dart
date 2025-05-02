@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const AnimatedBackground(), // background
+        const AnimatedBackground(),
         ...List.generate(40, (_) => const FloatingPin()),
         Scaffold(
           backgroundColor: Colors.transparent,

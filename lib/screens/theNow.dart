@@ -243,8 +243,7 @@ class _TheNowState extends State<TheNow> {
                           );
 
                           if (confirm == true) {
-                            await postService.deletePost(
-                                post.id); // make sure this method exists
+                            await postService.deletePost(post.id);
                             _refreshPosts();
                           }
                         },

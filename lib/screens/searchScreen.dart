@@ -1,3 +1,5 @@
+import 'package:atmosfera/screens/locationDetailScreen.dart';
+import 'package:atmosfera/services/auth_service.dart';
 import 'package:atmosfera/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -137,7 +139,24 @@ class _SearchScreenState extends State<SearchScreen> {
                                     onEdit: null,
                                     onDelete: null,
                                     onLocationTap: () {
-                                      //Navigate to LocationDetailScreen
+                                      if (post.coordinates.isNotEmpty) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                LocationDetailScreen(
+                                              username: post.username,
+                                              locationName: post.address,
+                                              locationCoords: LatLng(
+                                                post.coordinates[1],
+                                                post.coordinates[0],
+                                              ),
+                                              address: post.address,
+                                              userId: widget.userId,
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     },
                                   );
                                 },

@@ -475,7 +475,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildBucketListTab() {
     final filtered = selectedCategory == 'All'
-        ? List.from(pinnedPosts) // Keep original order of all pinned
+        ? List.from(pinnedPosts)
         : pinnedPosts.where((p) => p.category == selectedCategory).toList();
 
     // Sort by pinned time descending — assuming 'createdAt' is DateTime
